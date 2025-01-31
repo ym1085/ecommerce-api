@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 30MB # 개별 파일 업로드 최대 크기
+      max-request-size: 50MB # 전체 요청(멀티파트) 최대 크기
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher # spring boot 2.6부터 기본 매칭 전략 수정됨
+
+  datasource:
+    driver-class-name: '${custom_local.db.driver-class-name}'
+    url: '${custom_local.db.url}'
+    username: '${custom_local.db.username}'
+    password: '${custom_local.db.password}'
+
+  # open-in-view
+  # - 트랜잭션이 종료된 이후에도 영속성 컨텍스트(EntityManager)가 열려 있도록 유지하는 기능
+  # - 컨트롤러나 뷰에서 Lazy Loading을 수행 가능, 하지만 성능 문제 있을 수 있기에 false로 지정
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false # 쿼리 콘솔 출력 여부 확인
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50 # 한 번에 50개까지 INSERT 가능
+        format_sql: true # 쿼리 포맷팅
+        order_inserts: true # INSERT 순서 최적화
+        order_updates: true # UPDATE 순서 최적화
+    open-in-view: false # Open Session in View 패턴 사용 여부
+
+# Logging Configuration
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: TRACE
+        type.descriptor.sql.BasicBinder: TRACE # 파라미터 바인딩 로그 비활성화
