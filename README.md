@@ -1,3 +1,4 @@
-# springboot-ecommerce
+# Ecommerce Backend API
 
-이 프로젝트는 Spring Boot와 JPA를 사용하여 쇼핑몰을 제작하기 위한 목적의 리포지토리입니다.
+Backend API for an ecommerce service built with Spring Boot.
+MyBatis + JPA data layer and JWT-secured auth.
