@@ -1,4 +1,7 @@
-# Ecommerce Backend API
+# Ecommerce API
 
-Backend API for an ecommerce service built with Spring Boot.  
-MyBatis + JPA data layer and JWT-secured auth.
+> This repository is for building an e-commerce backend API system. Built with Spring Boot, MyBatis, and JPA, with JWT-based authentication.
+
+## Overview
+## Project Structure
+## Prerequisites
