@@ -11,10 +11,15 @@ body:
       required: true
 
   - type: textarea
+    id: tasks
     attributes:
       label: ✅ Tasks
-      description: List the work items as a checkbox list.
-      placeholder: Break it down into small, actionable tasks.
+      description: Write tasks using GitHub task list syntax (- [ ]).
+      placeholder: |
+        - [ ] 설계 확정
+        - [ ] API 구현
+        - [ ] 테스트 작성
+        - [ ] 배포/릴리즈 노트
     validations:
       required: true
 
