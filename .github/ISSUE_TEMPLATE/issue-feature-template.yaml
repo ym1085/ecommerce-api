@@ -1,5 +1,6 @@
 name: "✨ Feature"
 description: "New feature request issue template"
+title: "Feat: "
 labels: ["feature"]
 body:
   - type: textarea
