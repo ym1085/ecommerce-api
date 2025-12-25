@@ -1,6 +1,6 @@
 name: "✨ Feature"
 description: "New feature request issue template"
-title: "Feat: "
+title: "[Feature]: {기능 제목}"
 labels: ["feature"]
 body:
   - type: textarea
@@ -17,14 +17,15 @@ body:
       label: ✅ Tasks
       description: Write tasks using GitHub task list syntax (- [ ]).
       placeholder: |
-        - [ ] 설계 확정
-        - [ ] API 구현
-        - [ ] 테스트 작성
-        - [ ] 배포/릴리즈 노트
+        - [ ] 주문 API 구현
+        - [ ] 주문 API 테스트코드 작성
     validations:
       required: true
 
-  - type: textarea
+  - type: input
+    id: related
     attributes:
-      label: 🙋🏻 References
-      description: Add any relevant links or reference materials.
+      label: 관련 이슈(Optional)
+      placeholder: "#14"
+    validations:
+      required: false
