@@ -4,15 +4,34 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.ecommerce'
-version = '0.0.1-SNAPSHOT'
+/**
+ * 루트 프로젝트를 포함한 하위 프로젝트 모듈에 공통으로 적용되는 옵션
+ * group: 라이브러리 저장소에 올릴 때 이름 충돌 없이 구분하기 위한 주소
+ * version: 버저닝을 위해 사용되는 이름
+ */
+allprojects {
+    group = 'com.ecommerce'
+    version = '0.0.1-SNAPSHOT'
+}
 
+
+/**
+ * Gradle이 실제로 사용할 JDK 자체를 Java 17로 강제 설정
+ * 이에 반해 sourceCompatibility는 코드 문법만 Java 17까지로 제한하고
+ * 어떤 JDK로 빌드하는지까지는 보장하지 않음
+ */
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
 
+/**
+ * Lombok 같은 도구를 컴파일할때는 필요하지만, 런타임에서는 필요없게 하려는 설정
+ * Lombok의 경우 실행중에 무엇을 하지 않고, 컴파일 시 @Getter, @Builder 같은 어노테이션을 보고
+ * 진짜 Java 코드(getter, 생성자)를 미리 만들어준다.
+ * 즉, Lombok은 코드 생성기이기 때문에, 컴파일 할때만 필요함
+ */
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
