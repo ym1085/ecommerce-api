@@ -1,7 +1,7 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.4.2'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.springframework.boot' version '3.4.2' apply false
+	id 'io.spring.dependency-management' version '1.1.7' apply false
 }
 
 /**
@@ -12,53 +12,62 @@ plugins {
 allprojects {
     group = 'com.ecommerce'
     version = '0.0.1-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
 }
 
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
 
-/**
- * Gradle이 실제로 사용할 JDK 자체를 Java 17로 강제 설정
- * 이에 반해 sourceCompatibility는 코드 문법만 Java 17까지로 제한하고
- * 어떤 JDK로 빌드하는지까지는 보장하지 않음
- */
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
-}
+    /**
+     * Gradle이 실제로 사용할 JDK 자체를 Java 17로 강제 설정.
+     * 이에 반해 sourceCompatibility는 코드 문법만 Java 17까지로 제한하고,
+     * 어떤 JDK로 빌드하는지까지는 보장하지 않음.
+     */
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
 
-/**
- * Lombok 같은 도구를 컴파일할때는 필요하지만, 런타임에서는 필요없게 하려는 설정
- * Lombok의 경우 실행중에 무엇을 하지 않고, 컴파일 시 @Getter, @Builder 같은 어노테이션을 보고
- * 진짜 Java 코드(getter, 생성자)를 미리 만들어준다.
- * 즉, Lombok은 코드 생성기이기 때문에, 컴파일 할때만 필요함
- */
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
+    /**
+     * annotationProcessor로 추가한 라이브러리를 compileOnly에도 포함시키는 설정.
+     * 컴파일러가 Lombok을 인식해야, Lombok이 생성한 코드(getter, 생성자 등)의
+     * 타입 정보를 올바르게 이해할 수 있기 때문이다.
+     */
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
 
-repositories {
-	mavenCentral()
-}
+    dependencies {
+        // Spring Boot Web MVC(@Controller, @RestController, @RequestMapping), embedded tomcat, jackson, spring validation..
+        implementation 'org.springframework.boot:spring-boot-starter-web'
 
-dependencies {
-	// Spring Data JPA 사용
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        // Spring Data JPA
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-	// Spring MVC(@Controller, @RestController, @RequestMapping) 사용하게 지원
-	// 내장 Tomcat 서버를 포함, Jackson, Spring Validation 지원
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+        // Development only dependencies, excluded from production builds(JAR/WAR)
+        developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	annotationProcessor 'org.projectlombok:lombok'
+        // Lombok
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok' // Compile 시 어노테이션 기반 코드 생성
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
+        // Mysql Driver
+        runtimeOnly 'com.mysql:mysql-connector-j'
 
-tasks.named('test') {
-	useJUnitPlatform()
+        // Test Support Tool
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
 }

@@ -1,20 +1,6 @@
-plugins {
-    id 'java'
-}
-
-group = 'com.ecommerce'
-version = '0.0.1-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
+bootJar.enabled = false // 실행 가능한 JAR 생성 비활성화
+jar.enabled = true // JAR 생성 활성화
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-test {
-    useJUnitPlatform()
+    // Add core module dependencies
 }
