@@ -1,0 +1,18 @@
+server:
+  port: 8080
+  shutdown: graceful # Graceful Shutdown 기능 적용 (immediate: 즉시 요청 처리 중단 | graceful: 현재 요청 끝날때까지 기다렸다가 종료)
+
+spring:
+  application:
+    name: ecommerce-local
+  lifecycle:
+    timeout-per-shutdown-phase: 30s # shutdown을 최대 몇초동안 기다릴지, 해당 시간 지나면 강제 종료
+  config:
+    activate:
+      on-profile: local
+
+logging:
+  level:
+    root: info
+    com.ecommerce: debug
+    org.springframework: info
