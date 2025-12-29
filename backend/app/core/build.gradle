@@ -1,0 +1,6 @@
+bootJar.enabled = false // 실행 가능한 JAR 생성 비활성화
+jar.enabled = true // JAR 생성 활성화
+
+dependencies {
+    // Add core module dependencies
+}
