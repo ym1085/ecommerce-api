@@ -1,0 +1,6 @@
+bootJar.enabled = true // 실행 가능한 JAR 생성
+jar.enabled = false // JAR 생성 비활성화
+
+dependencies {
+    implementation project(':backend:app:core')
+}
