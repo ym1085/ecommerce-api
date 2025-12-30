@@ -1,0 +1,7 @@
+spring:
+  profiles:
+    default: local # PROFILE이 없는 경우 default local로 설정
+    group: # group 설정을 통해 PROFILE에 맞춰서 yml 셋팅
+      local: local,secret
+      dev: dev,secret
+      prod: prod,secret
