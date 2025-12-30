@@ -1,0 +1,46 @@
+server:
+  port: 8080
+  shutdown: graceful # Graceful Shutdown 기능 적용 (immediate: 즉시 요청 처리 중단 | graceful: 현재 요청 끝날때까지 기다렸다가 종료)
+
+spring:
+  application:
+    name: ecommerce-local
+  config:
+    activate:
+      on-profile: local
+  lifecycle:
+    timeout-per-shutdown-phase: 30s # shutdown을 최대 몇초동안 기다릴지, 해당 시간 지나면 강제 종료
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari: # HikariCP(Connection Pool OpenSource) -> JDBC Connection Pool 구현체 -> https://dkswnkk.tistory.com/685
+      maximum-pool-size: 10 # 애플리케이션이 DB에 동시에 붙을 수 있는 최대수
+      minimum-idle: 5 # 요청이 없는 경우에도 최소 5개는 항상 대기 상태로 유지
+      connection-timeout: 5000 # maximum-pool-size에 도달 후 커넥션을 못 얻으면 얼마나 기다릴지(ms)
+      idle-timeout: 600000 # 사용하지 않고 놀고 있는 커넥션이 10분 이상 idle 상태면 제거(ms) minimum-idle 이하는 제거 안됨
+      max-lifetime: 1800000 # 커네션이 생성된 지 30분이 지나면 idle(pool 안에 존재) / 사용여부 상관없이 폐기(ms)
+  jpa:
+    # OSIV(Open Session In View) - 웹 요청부터 응답까지 영속성 컨텍스트 유지하는 옵션
+    open-in-view: false # OSIV 비활성화 (N+1 문제 방지)
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect # Hibernate가 어떤 DB 문법으로 SQL을 만들지 알려주는 방언
+        format_sql: true # Hibernate가 출력하는 SQL을 보기좋게 포맷팅
+        show_sql: false # 로깅으로 대체
+        generate_statistics: true # Hibernate 내부에서 실행되는 각종 성능 통계를 수집할지 지정 (운영은 OFF)
+        jdbc:
+          batch_size: 20 # INSERT/UPDATE SQL을 몇 개씩 모아서 DB에 한번에 보낼지
+        order_inserts: true # flush 직전에 INSERT문 정렬 (batch 조건 맞음)
+        order_updates: true # flush 직전에 UPDATE문 정렬 (상동)
+
+logging:
+  level:
+    root: info
+    com.ecommerce: debug
+    org.springframework: info
+    org.hibernate.SQL: debug # Hibernate가 DB로 전송하는 SQL 문 출력
+    org.hibernate.orm.jdbc.bind: trace # Hibernate Binding Parameter
+    org.hibernate.stat: debug # Hibernate 성능 통계 정보 출력
+    com.zaxxer.hikari: debug # HikariCP 상세 로그
+    org.hibernate.orm.connections.pooling: debug # 커넥션 풀 정보

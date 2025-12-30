@@ -1,0 +1,41 @@
+server:
+  port: 8081
+  shutdown: graceful
+
+spring:
+  application:
+    name: ecommerce-dev
+  config:
+    activate:
+      on-profile: dev
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 10
+      connection-timeout: 5000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: false
+        show_sql: false
+        generate_statistics: false
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+
+logging:
+  level:
+    root: warn
+    com.ecommerce: info
+    org.springframework: warn
+    org.hibernate.SQL: warn
