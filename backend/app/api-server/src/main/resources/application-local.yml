@@ -12,9 +12,6 @@ spring:
     timeout-per-shutdown-phase: 30s # shutdown을 최대 몇초동안 기다릴지, 해당 시간 지나면 강제 종료
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/ecommerce?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:password}
     hikari: # HikariCP(Connection Pool OpenSource) -> JDBC Connection Pool 구현체 -> https://dkswnkk.tistory.com/685
       maximum-pool-size: 10 # 애플리케이션이 DB에 동시에 붙을 수 있는 최대수
       minimum-idle: 5 # 요청이 없는 경우에도 최소 5개는 항상 대기 상태로 유지
@@ -45,3 +42,5 @@ logging:
     org.hibernate.SQL: debug # Hibernate가 DB로 전송하는 SQL 문 출력
     org.hibernate.orm.jdbc.bind: trace # Hibernate Binding Parameter
     org.hibernate.stat: debug # Hibernate 성능 통계 정보 출력
+    com.zaxxer.hikari: debug # HikariCP 상세 로그
+    org.hibernate.orm.connections.pooling: debug # 커넥션 풀 정보
