@@ -2,14 +2,19 @@ package com.ecommerce.domain;
 
 import com.ecommerce.common.utils.BaseTimeEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         name = "TB_MEMBER_ROLE",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"member_id", "role_id"})
         }
 )
+@Entity
 public class MemberRole extends BaseTimeEntity {
 
     @Id
