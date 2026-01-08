@@ -2,6 +2,7 @@ package com.ecommerce;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
  * @SpringBootApplication
@@ -13,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * - 필요한 설정과 Bean을 자동으로 구성한다 (@EnableAutoConfiguration)
  * - 현재 패키지 기준으로 컴포넌트 스캔 수행 (@ComponentScan)
  */
+@EnableJpaAuditing // JPA Auditing 기능 활성화
 @SpringBootApplication
 public class SpringbootEcommerceApplication {
 
