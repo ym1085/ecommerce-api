@@ -33,10 +33,10 @@ public class OrderItem extends BaseTimeEntity {
     @Column(name = "product_name", nullable = false)
     private String productName;
 
-    @Column(name = "unit_price", nullable = false, columnDefinition = "주문 당시 상품 가격")
+    @Column(name = "unit_price", nullable = false)
     private Long unitPrice;
 
-    @Column(name = "line_amount", nullable = false, columnDefinition = "unit_price * quantity 계산값")
+    @Column(name = "line_amount", nullable = false)
     private Long lineAmount;
 
     @Column(name = "quantity", nullable = false)

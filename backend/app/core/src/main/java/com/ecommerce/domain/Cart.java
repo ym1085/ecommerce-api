@@ -18,7 +18,7 @@ public class Cart extends BaseTimeEntity {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false, unique = true) // 회원 당 장바구니 1개이기에 unique = true 설정
     private Member member;
 
     /*@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)

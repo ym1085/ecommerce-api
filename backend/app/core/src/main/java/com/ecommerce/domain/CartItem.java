@@ -30,6 +30,6 @@ public class CartItem extends BaseTimeEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(name = "quantity", nullable = false, columnDefinition = "장바구니 수량")
+    @Column(name = "quantity", nullable = false)
     private Long quantity;
 }
