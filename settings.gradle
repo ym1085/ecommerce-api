@@ -1,4 +1,4 @@
-rootProject.name = 'commerce-core-api'
+rootProject.name = 'sandbox-ecommerce-api'
 include 'frontend'
 include 'backend:app:api-server'
 include 'backend:app:core'

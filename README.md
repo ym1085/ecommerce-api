@@ -1,51 +1,24 @@
-# Commerce Core API
+# Sandbox E-Commerce API
 
-This repository is for building an e-commerce backend API system. Built with Spring Boot, MyBatis, and JPA, with JWT-based authentication.
-
-## Overview
-
-e-commerce backend API built with Spring Boot multi-module architecture.
+Spring Boot 멀티 모듈 기반의 이커머스 백엔드 API 프로젝트입니다.  
+MyBatis, JPA, JWT 인증을 사용합니다.
 
 ## Project Structure
 
-```markdown
+```
 commerce-core-api/
 ├── backend/
 │   └── app/
-│       ├── api-server/
-│       │   ├── src/main/java/
-│       │   │   └── com/ecommerce/
-│       │   │       ├── SpringbootEcommerceApplication.java
-│       │   │       ├── controller/
-│       │   │       ├── restcontroller/
-│       │   │       ├── service/
-│       │   │       ├── config/
-│       │   │       ├── handler/
-│       │   │       └── common/
-│       │   └── build.gradle
-│       │
-│       └── core/
-│           ├── src/main/java/
-│           │   └── com/ecommerce/
-│           │       ├── domain/
-│           │       ├── dto/
-│           │       │   ├── req/
-│           │       │   └── res/
-│           │       ├── exception/
-│           │       └── common/
-│           └── build.gradle
-│
+│       ├── api-server/   # REST API 엔드포인트 (controller, service, config 등)
+│       └── core/         # 공통 모듈 (domain, dto, exception 등)
 ├── frontend/
 ├── build.gradle
 └── settings.gradle
 ```
 
-- **api-server**: Spring Boot main application, providing REST API endpoints.
-- **core**: Common libraries such as domains, DTOs, and exception handling.
-- **frontend**: Frontend resource.
-
 ## Prerequisites
 
-- Java 17+
+- Java 17
 - Spring Boot 3.4.2
-- Spring Data JPA
+- Spring Data JPA / MyBatis
+- JWT 인증
