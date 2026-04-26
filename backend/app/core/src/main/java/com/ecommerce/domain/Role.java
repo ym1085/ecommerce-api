@@ -3,6 +3,7 @@ package com.ecommerce.domain;
 import com.ecommerce.common.utils.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,10 +21,14 @@ public class Role extends BaseTimeEntity {
     @Column(name = "role_name", nullable = false, unique = true)
     private String roleName;
 
-    /**
-     * TODO: 양방향 연관관계 매핑 필요시 MemberRole mappedBy로 참조
-     * 근데 굳이 Role에서 MemberRole을 참조할 필요가 있을지 모르겠음?
-     */
-    /*@OneToMany(mappedBy = "role")
-    private List<MemberRole> memberRoles = new ArrayList<>();*/
+    @Builder
+    public Role(String roleName) {
+        this.roleName = roleName;
+    }
+
+    public static Role createRole(String roleName) {
+        return Role.builder()
+                .roleName(roleName)
+                .build();
+    }
 }

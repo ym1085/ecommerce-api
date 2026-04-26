@@ -38,3 +38,5 @@ out/
 
 ### Application Secret Files ###
 **/application-secret.yml
+
+.claude
