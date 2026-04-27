@@ -29,7 +29,7 @@ public class MemberRole extends BaseTimeEntity {
     private Role role;
 
     // 양방향 연관관계 편의 메서드
-    public void setMember(Member member) {
+    protected void assignMember(Member member) {
         this.member = member;
     }
 

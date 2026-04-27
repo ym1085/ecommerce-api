@@ -35,7 +35,7 @@ public class MemberAddress extends BaseTimeEntity {
     private Member member;
 
     // 양방향 연관관계 편의 메서드
-    public void setMember(Member member) {
+    protected void assignMember(Member member) {
         this.member = member;
     }
 
@@ -72,5 +72,22 @@ public class MemberAddress extends BaseTimeEntity {
      */
     public void updateIsDefault(String isDefault) {
         this.isDefault = isDefault;
+    }
+
+    /**
+     * 주소 정보 변경
+     * @param addressNickname
+     * @param zipCode
+     * @param address
+     * @param addressDetail
+     */
+    public void updateAddress(String addressNickname,
+                              String zipCode,
+                              String address,
+                              String addressDetail) {
+        this.addressNickname = addressNickname;
+        this.zipCode = zipCode;
+        this.address = address;
+        this.addressDetail = addressDetail;
     }
 }

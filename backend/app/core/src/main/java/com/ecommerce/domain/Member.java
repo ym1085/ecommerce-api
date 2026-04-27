@@ -55,14 +55,20 @@ public class Member extends BaseTimeEntity {
 
     // 양방향 연관관계 편의 메서드 -> Member <-> MemberAddress
     public void addMemberAddress(MemberAddress memberAddress) {
+        if (memberAddress.getMember() != null) {
+            memberAddress.getMember().getMemberAddresses().remove(memberAddress);
+        }
         this.memberAddresses.add(memberAddress);
-        memberAddress.setMember(this);
+        memberAddress.assignMember(this);
     }
 
     // 양방향 연관관계 편의 메서드 -> Member <-> MemberRole
     public void addMemberRole(MemberRole memberRole) {
+        if (memberRole.getMember() != null) {
+            memberRole.getMember().getMemberRoles().remove(memberRole);
+        }
         this.memberRoles.add(memberRole);
-        memberRole.setMember(this);
+        memberRole.assignMember(this);
     }
 
     @Builder
@@ -130,5 +136,12 @@ public class Member extends BaseTimeEntity {
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     * 최근 로그인일자 변경
+     */
+    public void updateLastLoginAt() {
+        this.lastLoginAt = LocalDateTime.now();
     }
 }
