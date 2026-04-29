@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "TB_ORDER")
@@ -27,21 +30,30 @@ public class Order extends BaseTimeEntity {
     private OrderStatus orderStatus;
 
     @Column(name = "total_amount", nullable = false)
-    private Integer totalAmount;
+    private Long totalAmount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @OneToMany(mappedBy = "order")
+    private List<OrderItem> orderItems = new ArrayList<>();
+
+    // 양방향 연관관계 매핑 -> Order <-> OrderItem
+    public void addOrderItem(OrderItem orderItem) {
+        this.orderItems.add(orderItem);
+        orderItem.assignOrder(this);
+    }
+
     @Builder
-    public Order(String orderNo, Integer totalAmount, Member member) {
+    public Order(String orderNo, Long totalAmount, Member member) {
         this.orderNo = orderNo;
         this.orderStatus = OrderStatus.ORDERED;
         this.totalAmount = totalAmount;
         this.member = member;
     }
 
-    public static Order createOrder(String orderNo, Integer totalAmount, Member member) {
+    public static Order createOrder(String orderNo, Long totalAmount, Member member) {
         return Order.builder()
                 .orderNo(orderNo)
                 .totalAmount(totalAmount)
@@ -52,14 +64,14 @@ public class Order extends BaseTimeEntity {
     /**
      * 주문 결제 완료 처리
      */
-    public void paid() {
+    public void completePay() {
         this.orderStatus = OrderStatus.PAID;
     }
 
     /**
      * 주문 취소 처리
      */
-    public void cancel() {
+    public void cancelOrder() {
         this.orderStatus = OrderStatus.CANCELED;
     }
 }
