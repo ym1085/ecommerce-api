@@ -46,7 +46,7 @@ public class Member extends BaseTimeEntity {
     private LocalDateTime lastLoginAt;
 
     // 양방향 연관관계 매핑 -> Member(1) : MemberAddress(N)
-    @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "member")
     private List<MemberAddress> memberAddresses = new ArrayList<>();
 
     // 양방향 연관관계 매핑 -> Member(1) : MemberRole(N)
@@ -55,18 +55,12 @@ public class Member extends BaseTimeEntity {
 
     // 양방향 연관관계 편의 메서드 -> Member <-> MemberAddress
     public void addMemberAddress(MemberAddress memberAddress) {
-        if (memberAddress.getMember() != null) {
-            memberAddress.getMember().getMemberAddresses().remove(memberAddress);
-        }
         this.memberAddresses.add(memberAddress);
         memberAddress.assignMember(this);
     }
 
     // 양방향 연관관계 편의 메서드 -> Member <-> MemberRole
     public void addMemberRole(MemberRole memberRole) {
-        if (memberRole.getMember() != null) {
-            memberRole.getMember().getMemberRoles().remove(memberRole);
-        }
         this.memberRoles.add(memberRole);
         memberRole.assignMember(this);
     }
