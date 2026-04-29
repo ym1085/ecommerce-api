@@ -5,10 +5,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum OrderStatus {
-    ORDERED("주문 생성"),
-    PAID("결제 완료"),
-    CANCELED("주문 취소")
+public enum PaymentMethod {
+    CARD("신용/체크카드"),
+    TRANSFER("계좌이체"),
+    VIRTUAL_ACCOUNT("가상 계좌")
     ;
 
     private final String description;
