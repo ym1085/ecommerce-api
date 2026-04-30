@@ -2,5 +2,23 @@ bootJar.enabled = false // 실행 가능한 JAR 생성 비활성화
 jar.enabled = true // JAR 생성 활성화
 
 dependencies {
-    // Add core module dependencies
+    // QueryDSL (Spring Boot 3.x = jakarta)
+    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+    annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+}
+
+def querydslDir = layout.projectDirectory.dir('src/main/generated')
+
+sourceSets {
+    main.java.srcDirs += [querydslDir]
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.generatedSourceOutputDirectory = querydslDir
+}
+
+clean {
+    delete querydslDir
 }
