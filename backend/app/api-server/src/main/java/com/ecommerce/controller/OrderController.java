@@ -7,5 +7,5 @@ import org.springframework.stereotype.Controller;
 @Slf4j
 @RequiredArgsConstructor
 @Controller
-public class MemberController {
+public class OrderController {
 }

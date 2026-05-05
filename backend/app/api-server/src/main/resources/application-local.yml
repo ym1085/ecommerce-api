@@ -31,10 +31,11 @@ spring:
         format_sql: true # Hibernate가 출력하는 SQL을 보기좋게 포맷팅
         show_sql: false # 로깅으로 대체
         generate_statistics: true # Hibernate 내부에서 실행되는 각종 성능 통계를 수집할지 지정 (운영은 OFF)
-        jdbc:
-          batch_size: 20 # INSERT/UPDATE SQL을 몇 개씩 모아서 DB에 한번에 보낼지
         order_inserts: true # flush 직전에 INSERT문 정렬 (batch 조건 맞음)
         order_updates: true # flush 직전에 UPDATE문 정렬 (상동)
+        jdbc:
+          batch_size: 20 # INSERT/UPDATE SQL을 몇 개씩 모아서 DB에 한번에 보낼지
+        default_batch_fetch_size: 1000
 
 logging:
   level:
