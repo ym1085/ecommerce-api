@@ -1,10 +1,10 @@
 package com.ecommerce.common.enums;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public enum ProductStatus {
     ON_SALE("판매중"),
     OUT_OF_STOCK("품절"),
