@@ -52,6 +52,9 @@ subprojects {
         // Spring Data JPA
         implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
+        // Spring Validation
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+
         // Development only dependencies, excluded from production builds(JAR/WAR)
         developmentOnly 'org.springframework.boot:spring-boot-devtools'
 

@@ -116,13 +116,16 @@ public class Product extends BaseTimeEntity {
      * @param quantity 재고 수량
      */
     public void decreaseStock(Integer quantity) {
+        if (this.productStatus != ProductStatus.ON_SALE) {
+            throw new IllegalArgumentException("주문 불가 상태의 상품입니다.");
+        }
         if (quantity == null || quantity <= 0) {
             throw new IllegalArgumentException("차감 수량은 1 이상이어야 합니다.");
         }
         if (this.stockQuantity - quantity < 0) {
             throw new IllegalStateException("재고가 부족합니다.");
         }
-        this.stockQuantity -= quantity;
+        this.stockQuantity -= quantity; // 특정 삼품의 재고 수량에서 상품 수량 차감
         if (this.stockQuantity == 0) {
             this.productStatus = ProductStatus.OUT_OF_STOCK; // 판매중 -> 품절 전환
         }
