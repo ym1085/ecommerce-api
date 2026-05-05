@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,12 +21,15 @@ public class OrderItem extends BaseTimeEntity {
     @Column(name = "order_item_id")
     private Long id;
 
+    @Comment("상품명 스냅샷")
     @Column(name = "product_name", nullable = false)
     private String productName;
 
+    @Comment("상품별 가격 스냅샷")
     @Column(name = "unit_price", nullable = false)
     private Long unitPrice;
 
+    @Comment("주문 수량 스냅샷")
     @Column(nullable = false)
     private Integer quantity;
 

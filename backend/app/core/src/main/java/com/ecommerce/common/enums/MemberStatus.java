@@ -1,10 +1,10 @@
 package com.ecommerce.common.enums;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public enum MemberStatus {
     ACTIVE("활성"), // 정상 회원 -> 모든 서비스 이용 가능
     INACTIVE("비활성"), // 휴먼 계정 -> N일 지난 계정

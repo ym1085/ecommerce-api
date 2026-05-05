@@ -1,10 +1,10 @@
 package com.ecommerce.common.enums;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public enum PaymentMethod {
     CARD("신용/체크카드"),
     TRANSFER("계좌이체"),

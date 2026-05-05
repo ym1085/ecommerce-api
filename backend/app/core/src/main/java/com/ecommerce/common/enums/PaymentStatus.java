@@ -1,10 +1,10 @@
 package com.ecommerce.common.enums;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public enum PaymentStatus {
     READY("결제 대기"),
     PAID("결제 완료"),

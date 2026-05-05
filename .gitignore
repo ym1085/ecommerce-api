@@ -39,4 +39,7 @@ out/
 ### Application Secret Files ###
 **/application-secret.yml
 
+### QueryDSL Generated ###
+**/src/main/generated/
+
 .claude
