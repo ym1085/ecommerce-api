@@ -9,8 +9,8 @@ MyBatis, JPA, JWT 인증을 사용합니다.
 commerce-core-api/
 ├── backend/
 │   └── app/
-│       ├── api-server/   # REST API 엔드포인트 (controller, service, config 등)
-│       └── core/         # 공통 모듈 (domain, dto, exception 등)
+│       ├── api-server/
+│       └── core/
 ├── frontend/
 ├── build.gradle
 └── settings.gradle
