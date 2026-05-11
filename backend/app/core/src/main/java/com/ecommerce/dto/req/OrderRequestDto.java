@@ -1,5 +1,6 @@
 package com.ecommerce.dto.req;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -17,6 +18,7 @@ public class OrderRequestDto {
         private Long memberId;
         @NotNull
         @Size(min = 1)
+        @Valid
         private List<Item> items;
     }
 
