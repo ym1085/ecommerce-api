@@ -42,4 +42,9 @@ out/
 ### QueryDSL Generated ###
 **/src/main/generated/
 
-.claude
+### Claude ###
+.claude/settings.local.json
+
+### Phase Execution Outputs ###
+phases/**/phase*-output.json
+phases/**/step*-output.json
