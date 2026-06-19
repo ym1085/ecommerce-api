@@ -33,10 +33,12 @@ public class OrderItem extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer quantity;
 
+    // 주문 상품(N) -> 주문(1)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
+    // 상품(N) -> 주문 상품(N)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
@@ -47,25 +49,26 @@ public class OrderItem extends BaseTimeEntity {
     }
 
     @Builder
-    public OrderItem(String productName, Long unitPrice, Integer quantity, Order order, Product product) {
+    public OrderItem(String productName, Long unitPrice, Integer quantity, Product product) {
         this.productName = productName;
         this.unitPrice = unitPrice;
-        this.quantity = quantity;
-        this.order = order;
         this.product = product;
+        this.quantity = quantity;
     }
 
-    public static OrderItem create(Order order, Product product, Integer quantity) {
+    public static OrderItem create(Product product, Integer quantity) {
         return OrderItem.builder()
                 .productName(product.getProductName())
                 .unitPrice(product.getPrice())
-                .quantity(quantity)
-                .order(order)
                 .product(product)
+                .quantity(quantity)
                 .build();
     }
 
-    public Long calculateSubtotal() {
+    /**
+     * 상품 단가 * 상품 수량 => 총 주문 금액 계산
+     */
+    public Long calculateTotalAmount() {
         return this.unitPrice * this.quantity;
     }
 }

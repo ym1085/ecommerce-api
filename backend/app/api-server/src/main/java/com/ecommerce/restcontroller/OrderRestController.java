@@ -1,6 +1,8 @@
 package com.ecommerce.restcontroller;
 
+import com.ecommerce.dto.req.OrderRequestDto;
 import com.ecommerce.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -25,5 +27,11 @@ public class OrderRestController {
     public ResponseEntity<?> findOrderByOrderId(@PathVariable Long orderId) {
         log.info("Find order detail - orderId={}", orderId);
         return ResponseEntity.ok(orderService.findOrderByOrderId(orderId));
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createOrder(@RequestBody @Valid OrderRequestDto.Create request) {
+        log.info("Create order - request={}", request);
+        return ResponseEntity.ok(orderService.createOrder(request));
     }
 }
