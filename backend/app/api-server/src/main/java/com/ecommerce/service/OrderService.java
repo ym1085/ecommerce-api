@@ -8,7 +8,6 @@ import com.ecommerce.domain.Product;
 import com.ecommerce.dto.req.OrderRequestDto;
 import com.ecommerce.dto.res.OrderResponseDto;
 import com.ecommerce.repository.MemberRepository;
-import com.ecommerce.repository.OrderItemRepository;
 import com.ecommerce.repository.OrderRepository;
 import com.ecommerce.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,6 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
-    private final OrderItemRepository orderItemRepository;
 
     public Page<OrderResponseDto.Summary> findOrders(Pageable pageable, Long memberId) {
         return orderRepository.findOrders(pageable, memberId);
@@ -44,14 +42,14 @@ public class OrderService {
     }
 
     @Transactional
-    public Long createOrder(OrderRequestDto.Create request) {
-        Member member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다. memberId=" + request.getMemberId()));
+    public Long saveOrder(Long memberId, OrderRequestDto.Create request) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다. memberId=" + memberId));
 
         // 상품 ID 목록 추출
-        List<Long> productIds = request.getItems()
+        List<Long> productIds = request.getProducts()
                 .stream()
-                .map(item -> item.getProductId())
+                .map(product -> product.getProductId())
                 .collect(Collectors.toList());
 
         // 상품 ID 기반 상품 정보 조회
@@ -61,7 +59,7 @@ public class OrderService {
 
         long totalAmount = 0L;
         List<OrderItem> orderItems = new ArrayList<>();
-        for (OrderRequestDto.Item item : request.getItems()) {
+        for (OrderRequestDto.Product item : request.getProducts()) {
             Product product = productMap.get(item.getProductId());
             if (product == null) {
                 throw new IllegalArgumentException("상품 정보를 찾을 수 없습니다. productId=" + item.getProductId());
@@ -83,7 +81,6 @@ public class OrderService {
         orderItems.forEach(orderItem -> order.addOrderItem(orderItem)); // 양방향 연관관계 셋팅
 
         orderRepository.save(order);
-        orderItemRepository.saveAll(orderItems);
         return order.getId();
     }
 }
