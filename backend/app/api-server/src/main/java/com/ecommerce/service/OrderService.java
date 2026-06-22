@@ -59,16 +59,16 @@ public class OrderService {
 
         long totalAmount = 0L;
         List<OrderItem> orderItems = new ArrayList<>();
-        for (OrderRequestDto.Product item : request.getProducts()) {
-            Product product = productMap.get(item.getProductId());
-            if (product == null) {
-                throw new IllegalArgumentException("상품 정보를 찾을 수 없습니다. productId=" + item.getProductId());
+        for (OrderRequestDto.Product product : request.getProducts()) {
+            Product findProduct = productMap.get(product.getProductId());
+            if (findProduct == null) {
+                throw new IllegalArgumentException("상품 정보를 찾을 수 없습니다. productId=" + product.getProductId());
             }
-            // 주문 정보에서 상품 수량을 기반으로 재고 차감
-            product.decreaseStock(item.getQuantity());
+            // 주문 정보에서 상품 수량을 기반으로 재고 차감 -> TODO: 락 걸어야할듯
+            findProduct.decreaseStock(product.getQuantity());
 
             // 주문 상품 생성
-            OrderItem orderItem = OrderItem.create(product, item.getQuantity());
+            OrderItem orderItem = OrderItem.create(findProduct, product.getQuantity());
             totalAmount += orderItem.calculateTotalAmount();
             orderItems.add(orderItem);
         }
