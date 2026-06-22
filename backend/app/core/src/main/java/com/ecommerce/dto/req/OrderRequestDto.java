@@ -15,18 +15,17 @@ public class OrderRequestDto {
     @NoArgsConstructor
     public static class Create {
         @NotNull
-        private Long memberId;
-        @NotNull
         @Size(min = 1)
         @Valid
-        private List<Item> items;
+        private List<Product> products;
     }
 
     @Getter
     @NoArgsConstructor
-    public static class Item {
+    public static class Product {
         @NotNull
         private Long productId;
+
         @NotNull
         @Min(1)
         private Integer quantity;
