@@ -1,6 +1,8 @@
 package com.ecommerce.domain;
 
+import com.ecommerce.common.enums.ErrorCode;
 import com.ecommerce.common.enums.ProductStatus;
+import com.ecommerce.common.exception.BusinessException;
 import com.ecommerce.common.utils.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -117,13 +119,13 @@ public class Product extends BaseTimeEntity {
      */
     public void decreaseStock(Integer quantity) {
         if (this.productStatus != ProductStatus.ON_SALE) {
-            throw new IllegalArgumentException("주문 불가 상태의 상품입니다.");
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_ORDERABLE);
         }
         if (quantity == null || quantity <= 0) {
             throw new IllegalArgumentException("차감 수량은 1 이상이어야 합니다.");
         }
         if (this.stockQuantity - quantity < 0) {
-            throw new IllegalStateException("재고가 부족합니다.");
+            throw new BusinessException(ErrorCode.PRODUCT_OUT_OF_STOCK);
         }
         this.stockQuantity -= quantity; // 특정 삼품의 재고 수량에서 상품 수량 차감
         if (this.stockQuantity == 0) {

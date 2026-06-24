@@ -1,5 +1,7 @@
 package com.ecommerce.service;
 
+import com.ecommerce.common.enums.ErrorCode;
+import com.ecommerce.common.exception.BusinessException;
 import com.ecommerce.common.utils.CodeUtils;
 import com.ecommerce.domain.Member;
 import com.ecommerce.domain.Order;
@@ -38,13 +40,13 @@ public class OrderService {
 
     public OrderResponseDto.Detail findOrderByOrderId(Long orderId) {
         return orderRepository.findOrderByOrderId(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문 정보를 찾을 수 없습니다. orderId=" + orderId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
     }
 
     @Transactional
     public Long createOrder(Long memberId, OrderRequestDto.Create request) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다. memberId=" + memberId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 상품 ID 목록 추출
         List<Long> productIds = request.getItems()
@@ -63,7 +65,7 @@ public class OrderService {
         for (OrderRequestDto.Item item : request.getItems()) {
             Product findProduct = productMap.get(item.getProductId()); // o(1)로 상품 조회
             if (findProduct == null) {
-                throw new IllegalArgumentException("상품 정보를 찾을 수 없습니다. productId=" + item.getProductId());
+                throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
             }
             // 주문 정보에서 상품 수량을 기반으로 재고 차감
             findProduct.decreaseStock(item.getQuantity());
