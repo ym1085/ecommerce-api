@@ -3,5 +3,11 @@ spring:
     default: local # PROFILE이 없는 경우 default local로 설정
     group: # group 설정을 통해 PROFILE에 맞춰서 yml 셋팅
       local: local,secret
-      dev: dev,secret
-      prod: prod,secret
+      dev: dev # secret 빼고 env로 주입
+      prod: prod # secret 빼고 env로 주입
+
+mybatis:
+  # ★ 별표(*) 필수: XML이 core.jar 안에 있어 실행 모듈(api-server)과 JAR가 분리되므로
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true # DB snake_case → Java camelCase 자동 매핑
