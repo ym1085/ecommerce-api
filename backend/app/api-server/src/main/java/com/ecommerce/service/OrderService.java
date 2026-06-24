@@ -42,33 +42,34 @@ public class OrderService {
     }
 
     @Transactional
-    public Long saveOrder(Long memberId, OrderRequestDto.Create request) {
+    public Long createOrder(Long memberId, OrderRequestDto.Create request) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다. memberId=" + memberId));
 
         // 상품 ID 목록 추출
-        List<Long> productIds = request.getProducts()
+        List<Long> productIds = request.getItems()
                 .stream()
-                .map(product -> product.getProductId())
+                .map(item -> item.getProductId())
                 .collect(Collectors.toList());
 
         // 상품 ID 기반 상품 정보 조회
-        Map<Long, Product> productMap = productRepository.findAllById(productIds)
+        // 비관적 락을 통해 상품 동시 주문 제어
+        Map<Long, Product> productMap = productRepository.findAllByIdWithLock(productIds)
                 .stream()
                 .collect(Collectors.toMap(product -> product.getId(), product -> product));
 
         long totalAmount = 0L;
         List<OrderItem> orderItems = new ArrayList<>();
-        for (OrderRequestDto.Product product : request.getProducts()) {
-            Product findProduct = productMap.get(product.getProductId());
+        for (OrderRequestDto.Item item : request.getItems()) {
+            Product findProduct = productMap.get(item.getProductId()); // o(1)로 상품 조회
             if (findProduct == null) {
-                throw new IllegalArgumentException("상품 정보를 찾을 수 없습니다. productId=" + product.getProductId());
+                throw new IllegalArgumentException("상품 정보를 찾을 수 없습니다. productId=" + item.getProductId());
             }
-            // 주문 정보에서 상품 수량을 기반으로 재고 차감 -> TODO: 락 걸어야할듯
-            findProduct.decreaseStock(product.getQuantity());
+            // 주문 정보에서 상품 수량을 기반으로 재고 차감
+            findProduct.decreaseStock(item.getQuantity());
 
             // 주문 상품 생성
-            OrderItem orderItem = OrderItem.create(findProduct, product.getQuantity());
+            OrderItem orderItem = OrderItem.create(findProduct, item.getQuantity());
             totalAmount += orderItem.calculateTotalAmount();
             orderItems.add(orderItem);
         }

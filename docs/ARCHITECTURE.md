@@ -35,7 +35,7 @@ sandbox-ecommerce-api/
 │                       ├── member/
 │                       ├── order/
 │                       ├── cart/
-│                       └── product/
+│                       └── item/
 └── frontend/                              # (미구현)
 ```
 

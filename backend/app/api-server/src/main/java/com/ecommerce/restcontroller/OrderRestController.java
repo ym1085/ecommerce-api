@@ -32,6 +32,6 @@ public class OrderRestController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid OrderRequestDto.Create request) {
         log.info("Create order - request={}", request);
-        return ResponseEntity.ok(orderService.saveOrder(userDetails.getMemberId(), request));
+        return ResponseEntity.ok(orderService.createOrder(userDetails.getMemberId(), request));
     }*/
 }

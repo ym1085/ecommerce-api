@@ -13,9 +13,9 @@ public final class CodeUtils {
      */
     public static String generate(String prefix) {
         return prefix + "-" + UUID.randomUUID()
-                                  .toString()
-                                  .replace("-", "")
-                                  .substring(0, 16)
-                                  .toUpperCase();
+                .toString()
+                .replace("-", "")
+                .substring(0, 16)
+                .toUpperCase();
     }
 }

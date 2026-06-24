@@ -17,12 +17,12 @@ public class OrderRequestDto {
         @NotNull
         @Size(min = 1)
         @Valid
-        private List<Product> products;
+        private List<Item> items;
     }
 
     @Getter
     @NoArgsConstructor
-    public static class Product {
+    public static class Item {
         @NotNull
         private Long productId;
 
