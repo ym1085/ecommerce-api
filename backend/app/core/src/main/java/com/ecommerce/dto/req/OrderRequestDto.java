@@ -15,8 +15,6 @@ public class OrderRequestDto {
     @NoArgsConstructor
     public static class Create {
         @NotNull
-        private Long memberId;
-        @NotNull
         @Size(min = 1)
         @Valid
         private List<Item> items;
@@ -27,6 +25,7 @@ public class OrderRequestDto {
     public static class Item {
         @NotNull
         private Long productId;
+
         @NotNull
         @Min(1)
         private Integer quantity;
