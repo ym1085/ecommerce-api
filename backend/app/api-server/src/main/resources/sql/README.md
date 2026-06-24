@@ -11,7 +11,7 @@
 3. [member_data.sql](/Users/youngminkim/projects/workspace-develop/sandbox-ecommerce-api/backend/app/api-server/src/main/resources/sql/member/member_data.sql)
 4. [member_role_data.sql](/Users/youngminkim/projects/workspace-develop/sandbox-ecommerce-api/backend/app/api-server/src/main/resources/sql/member/member_role_data.sql)
 5. [member_address_data.sql](/Users/youngminkim/projects/workspace-develop/sandbox-ecommerce-api/backend/app/api-server/src/main/resources/sql/member/member_address_data.sql)
-6. [product_data.sql](/Users/youngminkim/projects/workspace-develop/sandbox-ecommerce-api/backend/app/api-server/src/main/resources/sql/product/product_data.sql)
+6. [product_data.sql](/Users/youngminkim/projects/workspace-develop/sandbox-ecommerce-api/backend/app/api-server/src/main/resources/sql/item/product_data.sql)
 7. [cart_data.sql](/Users/youngminkim/projects/workspace-develop/sandbox-ecommerce-api/backend/app/api-server/src/main/resources/sql/cart/cart_data.sql)
 8. [cart_item_data.sql](/Users/youngminkim/projects/workspace-develop/sandbox-ecommerce-api/backend/app/api-server/src/main/resources/sql/cart/cart_item_data.sql)
 9. [order_data.sql](/Users/youngminkim/projects/workspace-develop/sandbox-ecommerce-api/backend/app/api-server/src/main/resources/sql/order/order_data.sql)

@@ -40,7 +40,7 @@ public class Order extends BaseTimeEntity {
     private Member member;
 
     // 주문(1) <- 주문 상품(N)
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     // 양방향 연관관계 매핑 -> Order <-> OrderItem
