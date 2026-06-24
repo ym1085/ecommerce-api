@@ -1,6 +1,7 @@
 package com.ecommerce.domain;
 
 import com.ecommerce.common.enums.MemberStatus;
+import com.ecommerce.common.enums.Role;
 import com.ecommerce.common.utils.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -39,6 +40,10 @@ public class Member extends BaseTimeEntity {
     @Column(name = "status", nullable = false)
     private MemberStatus memberStatus;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
+
     @Column(name = "is_agree_marketing", nullable = false)
     private String isAgreeMarketing;
 
@@ -49,20 +54,10 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "member")
     private List<MemberAddress> memberAddresses = new ArrayList<>();
 
-    // 양방향 연관관계 매핑 -> Member(1) : MemberRole(N)
-    @OneToMany(mappedBy = "member")
-    private List<MemberRole> memberRoles = new ArrayList<>();
-
     // 양방향 연관관계 편의 메서드 -> Member <-> MemberAddress
     public void addMemberAddress(MemberAddress memberAddress) {
         this.memberAddresses.add(memberAddress);
         memberAddress.assignMember(this);
-    }
-
-    // 양방향 연관관계 편의 메서드 -> Member <-> MemberRole
-    public void addMemberRole(MemberRole memberRole) {
-        this.memberRoles.add(memberRole);
-        memberRole.assignMember(this);
     }
 
     @Builder
@@ -71,13 +66,15 @@ public class Member extends BaseTimeEntity {
                   String name,
                   String phoneNumber,
                   MemberStatus memberStatus,
-                  String isAgreeMarketing) {
+                  String isAgreeMarketing,
+                  Role role) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.memberStatus = memberStatus;
         this.isAgreeMarketing = isAgreeMarketing;
+        this.role = role;
     }
 
     /**
@@ -101,6 +98,7 @@ public class Member extends BaseTimeEntity {
                 .phoneNumber(phoneNumber)
                 .memberStatus(MemberStatus.ACTIVE) // 가입 시 상태는 ACTIVE("활성화")로 고정
                 .isAgreeMarketing(isAgreeMarketing)
+                .role(Role.USER) // 가입 시 권한은 USER로 고정
                 .build();
     }
 
