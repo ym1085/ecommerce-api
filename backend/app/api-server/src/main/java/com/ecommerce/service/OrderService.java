@@ -71,7 +71,7 @@ public class OrderService {
             findProduct.decreaseStock(item.getQuantity());
 
             // 주문 상품 생성
-            OrderItem orderItem = OrderItem.create(findProduct, item.getQuantity());
+            OrderItem orderItem = OrderItem.createOrderItem(findProduct, item.getQuantity());
             totalAmount += orderItem.calculateTotalAmount();
             orderItems.add(orderItem);
         }
