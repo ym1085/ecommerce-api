@@ -31,11 +31,6 @@ public class CartItem extends BaseTimeEntity {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    // 양방향 연관관계 편의 메서드 -> Cart <-> CartItem
-    public void assignCart(Cart cart) {
-        this.cart = cart;
-    }
-
     @Builder
     public CartItem(Cart cart, Product product, Integer quantity) {
         this.cart = cart;
