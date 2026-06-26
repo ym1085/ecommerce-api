@@ -34,11 +34,6 @@ public class MemberAddress extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    // 양방향 연관관계 편의 메서드
-    protected void assignMember(Member member) {
-        this.member = member;
-    }
-
     @Builder
     public MemberAddress(String addressNickname,
                          String isDefault,

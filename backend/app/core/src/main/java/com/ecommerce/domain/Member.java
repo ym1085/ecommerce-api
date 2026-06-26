@@ -10,8 +10,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -49,16 +47,6 @@ public class Member extends BaseTimeEntity {
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
-
-    // 양방향 연관관계 매핑 -> Member(1) : MemberAddress(N)
-    @OneToMany(mappedBy = "member")
-    private List<MemberAddress> memberAddresses = new ArrayList<>();
-
-    // 양방향 연관관계 편의 메서드 -> Member <-> MemberAddress
-    public void addMemberAddress(MemberAddress memberAddress) {
-        this.memberAddresses.add(memberAddress);
-        memberAddress.assignMember(this);
-    }
 
     @Builder
     public Member(String email,
