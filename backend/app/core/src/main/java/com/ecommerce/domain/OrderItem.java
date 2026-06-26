@@ -44,7 +44,8 @@ public class OrderItem extends BaseTimeEntity {
     private Product product;
 
     // 양방향 연관관계 편의 메서드 -> Order <-> OrderItem
-    public void assignOrder(Order order) {
+    // protected: 같은 domain 패키지의 Order.addOrderItem()에서만 호출하도록 외부(Service) 차단
+    protected void assignOrder(Order order) {
         this.order = order;
     }
 
