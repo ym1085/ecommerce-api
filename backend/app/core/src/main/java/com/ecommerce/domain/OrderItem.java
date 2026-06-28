@@ -57,7 +57,7 @@ public class OrderItem extends BaseTimeEntity {
         this.quantity = quantity;
     }
 
-    public static OrderItem create(Product product, Integer quantity) {
+    public static OrderItem createOrderItem(Product product, Integer quantity) {
         return OrderItem.builder()
                 .productName(product.getProductName())
                 .unitPrice(product.getPrice())

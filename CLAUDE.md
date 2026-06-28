@@ -30,6 +30,10 @@
 - 커밋 메시지는 Conventional Commits 형식을 따른다 (feat:, fix:, docs:, refactor:).
 - 승인 없이 파일을 생성하거나 수정하지 않는다 (Logic-First).
 
+## 진행 중 작업
+
+- Member 인증 (회원가입/로그인/소셜) 구현 계획 및 코드 가이드: `docs/member-auth-plan.md` 참고
+
 ## 명령어
 
 ```bash
