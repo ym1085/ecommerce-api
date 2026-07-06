@@ -38,9 +38,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(SecurityConfig.class) // Spring Security 실제 설정을 읽어서 테스트에 반영
 class MemberRestControllerTest {
 
-    @Autowired MockMvc mockMvc;
-    @Autowired ObjectMapper objectMapper;
-    @MockitoBean MemberService memberService;
+    @Autowired
+    MockMvc mockMvc;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @MockitoBean
+    MemberService memberService;
 
     @Nested
     @DisplayName("POST /api/v1/members - 회원가입")
