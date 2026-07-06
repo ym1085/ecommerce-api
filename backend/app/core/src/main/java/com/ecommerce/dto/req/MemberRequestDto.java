@@ -16,10 +16,10 @@ public class MemberRequestDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SignUp {
+
         @NotBlank
         @Email
         private String email;
-
         @NotBlank
         @Size(min = 8, max = 20)
         private String password;
@@ -33,5 +33,19 @@ public class MemberRequestDto {
 
         @NotBlank
         private String isAgreeMarketing;
+
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Login {
+        @NotBlank
+        @Email
+        private String email;
+
+        @NotBlank
+        private String password;
     }
 }
