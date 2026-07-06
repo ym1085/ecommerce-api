@@ -268,7 +268,8 @@ public class MemberRestController {
 
 - `Member.createMember(email, password, name, phoneNumber, isAgreeMarketing)` → status=ACTIVE, role=USER 세팅.
   - 메서드: `updatePassword` / `updateStatus` / `updateProfile` / `updateLastLoginAt`
-- `MemberSocial` (TB_MEMBER_SOCIAL): `@ManyToOne(LAZY) Member` (단방향), `SocialProvider provider`, `String providerId`. 팩토리 `createMemberSocial(Member, SocialProvider, String)`.
+- `MemberSocial` (TB_MEMBER_SOCIAL): `@ManyToOne(LAZY) Member` (단방향), `SocialProvider provider`, `String providerId`.
+  팩토리 `createMemberSocial(Member, SocialProvider, String)`.
 - `SocialProvider` enum: KAKAO / NAVER / GOOGLE (description 보유).
 - 의존성 현황: `spring-boot-starter-security`, `jjwt 0.12.6` 존재. **`oauth2-client`는 아직 없음 (3차에서 추가)**.
 - `BusinessException(ErrorCode)` 단일 생성자.

@@ -26,13 +26,26 @@
 
 ## 개발 프로세스
 
-- CRITICAL: 새 기능 구현 시 테스트를 먼저 작성하고, 테스트가 통과하는 구현을 작성한다 (TDD).
+- CRITICAL: 기능 구현은 Domain → Repository → DTO → Service → Controller → Test 순서로 진행한다.
+  도메인을 먼저 설계하고 상위 레이어를 쌓은 뒤, 테스트는 마지막에 작성한다 (구현 선행, 테스트 후행).
 - 커밋 메시지는 Conventional Commits 형식을 따른다 (feat:, fix:, docs:, refactor:).
 - 승인 없이 파일을 생성하거나 수정하지 않는다 (Logic-First).
 
-## 진행 중 작업
+## 테스트 규칙
 
-- Member 인증 (회원가입/로그인/소셜) 구현 계획 및 코드 가이드: `docs/member-auth-plan.md` 참고
+- 테스트는 Service · Controller만 작성한다 (Repository 단순 파생 쿼리는 생략).
+- 모든 케이스를 망라하지 않고 핵심 케이스(대표 성공 1개 + 주요 실패/분기)만 작성한다 (기능 개발 속도 우선).
+- Service: `@ExtendWith(MockitoExtension.class)` 순수 단위 테스트. `@InjectMocks` 대상 + `@Mock` 의존, 비즈니스 로직·분기·예외 검증.
+- Controller: `@WebMvcTest(대상.class)` + `MockMvc` 웹 슬라이스. Service 의존은 `@MockitoBean` 사용(`@MockBean`은 3.4부터 deprecated). URL·HTTP Method·`@Valid`·Status·Response Body 검증.
+- 테스트 대상 메서드 1개당 `@Nested` 1개로 묶는다.
+- 메서드명은 영문 `should결과_when조건`(예: `shouldReturn201_whenSignUpSuccess`), `@DisplayName`은 한글로 작성한다.
+- 스타일: BDDMockito(`given().willReturn()`), AssertJ(`assertThat`, `assertThatThrownBy`), given/when/then 주석.
+- 테스트는 `src/test/java`에 운영 코드와 동일한 패키지 구조로 배치한다.
+
+## 로직/코드 설명 방식
+
+- 구현 전 로직을 설명할 때는 코드를 완전히 생략하지 말고, 핵심이 드러나는 60% 수준의 실제 코드를 보여준다.
+- 코드와 함께 처리 흐름(순서, 분기, 의존 관계)을 이해하기 쉽게 짚어준다.
 
 ## 명령어
 

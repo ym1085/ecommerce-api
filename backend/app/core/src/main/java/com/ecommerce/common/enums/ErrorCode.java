@@ -14,6 +14,8 @@ public enum ErrorCode {
 
     // 회원 (MEMBER)
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER-001", "회원 정보를 찾을 수 없습니다."),
+    MEMBER_DUPLICATE_EMAIL(HttpStatus.CONFLICT, "MEMBER-002", "이미 사용 중인 이메일입니다."),
+    MEMBER_DUPLICATE_PHONE_NUMBER(HttpStatus.CONFLICT, "MEMBER-003", "이미 사용 중인 전화번호입니다."),
 
     // 상품 (PRODUCT)
     PRODUCT_NOT_FOUND(HttpStatus.BAD_REQUEST, "PRODUCT-001", "상품 정보를 찾을 수 없습니다."),
