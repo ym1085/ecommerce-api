@@ -5,6 +5,7 @@ import com.ecommerce.common.exception.BusinessException;
 import com.ecommerce.domain.Member;
 import com.ecommerce.dto.req.MemberRequestDto;
 import com.ecommerce.dto.res.MemberResponseDto;
+import com.ecommerce.jwt.JwtProvider;
 import com.ecommerce.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public MemberResponseDto.SignUp signUp(MemberRequestDto.SignUp request) {
@@ -48,5 +50,27 @@ public class MemberService {
             log.warn("회원가입 동시성 발생. email = {}", request.getEmail(), e);
             throw new BusinessException(ErrorCode.MEMBER_DUPLICATE_EMAIL);
         }
+    }
+
+    @Transactional
+    public MemberResponseDto.Login login(MemberRequestDto.Login request) {
+        Member member = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_INVALID_CREDENTIALS));
+
+        if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
+            log.error("로그인 실패 계정 email = {}", request.getEmail());
+            throw new BusinessException(ErrorCode.MEMBER_INVALID_CREDENTIALS);
+        }
+
+        member.updateLastLoginAt(); // 최근 로그인 일자 업데이트 (Dirty Checking)
+
+        // JWT 신규 Token 생성
+        String jwtToken = jwtProvider.createJwtToken(member.getEmail(), member.getRole().name());
+
+        return MemberResponseDto.Login.builder()
+                .memberId(member.getId())
+                .accessToken(jwtToken)
+                .tokenType(JwtProvider.TOKEN_TYPE)
+                .build();
     }
 }

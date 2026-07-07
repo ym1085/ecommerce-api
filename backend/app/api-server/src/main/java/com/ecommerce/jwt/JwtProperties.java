@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "jwt")
 public class JwtProperties {
+
     @NotBlank
     private String secret; // JWT를 만들 때 사용하는 서명용 비밀키 (Base64 인코딩된 256bit 이상 키)
 
