@@ -1,6 +1,7 @@
 package com.ecommerce.service;
 
 import com.ecommerce.common.enums.ErrorCode;
+import com.ecommerce.common.enums.MemberStatus;
 import com.ecommerce.common.exception.BusinessException;
 import com.ecommerce.domain.Member;
 import com.ecommerce.dto.req.MemberRequestDto;
@@ -60,6 +61,13 @@ public class MemberService {
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             log.error("로그인 실패 계정 email = {}", request.getEmail());
             throw new BusinessException(ErrorCode.MEMBER_INVALID_CREDENTIALS);
+        }
+
+        // 비밀번호 검증 이후에 확인한다
+        // 앞에 두면 비밀번호를 모르는 공격자에게 "이 이메일은 탈퇴/차단된 계정"이라는 정보가 새어나간다
+        if (member.getMemberStatus() != MemberStatus.ACTIVE) {
+            log.warn("비활성 계정 로그인 시도 email = {}, status = {}", request.getEmail(), member.getMemberStatus());
+            throw new BusinessException(ErrorCode.MEMBER_NOT_ACTIVE);
         }
 
         member.updateLastLoginAt(); // 최근 로그인 일자 업데이트 (Dirty Checking)
