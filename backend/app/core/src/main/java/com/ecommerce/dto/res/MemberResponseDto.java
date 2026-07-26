@@ -16,7 +16,6 @@ public class MemberResponseDto {
         private Long id;
         private String email;
         private String name;
-
         public static SignUp from(Member member) {
             return SignUp.builder()
                     .id(member.getId())
@@ -24,5 +23,16 @@ public class MemberResponseDto {
                     .name(member.getName())
                     .build();
         }
+
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Login {
+        private Long memberId;
+        private String accessToken;
+        private String tokenType; // "Bearer"
     }
 }

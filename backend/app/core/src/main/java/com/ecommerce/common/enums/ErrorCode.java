@@ -10,12 +10,15 @@ public enum ErrorCode {
 
     // 공통 (COMMON)
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "COMMON-001", "잘못된 입력값입니다."),
+    INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "COMMON-002", "요청 본문을 읽을 수 없습니다."),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON-999", "서버 오류가 발생했습니다."),
 
     // 회원 (MEMBER)
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER-001", "회원 정보를 찾을 수 없습니다."),
     MEMBER_DUPLICATE_EMAIL(HttpStatus.CONFLICT, "MEMBER-002", "이미 사용 중인 이메일입니다."),
     MEMBER_DUPLICATE_PHONE_NUMBER(HttpStatus.CONFLICT, "MEMBER-003", "이미 사용 중인 전화번호입니다."),
+    MEMBER_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "MEMBER-004", "아이디 또는 비밀번호가 일치하지 않습니다."),
+    MEMBER_NOT_ACTIVE(HttpStatus.FORBIDDEN, "MEMBER-005", "이용할 수 없는 계정입니다."),
 
     // 상품 (PRODUCT)
     PRODUCT_NOT_FOUND(HttpStatus.BAD_REQUEST, "PRODUCT-001", "상품 정보를 찾을 수 없습니다."),

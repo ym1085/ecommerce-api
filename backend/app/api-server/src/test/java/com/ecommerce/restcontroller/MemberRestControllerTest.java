@@ -4,6 +4,7 @@ import com.ecommerce.common.enums.ErrorCode;
 import com.ecommerce.common.exception.BusinessException;
 import com.ecommerce.dto.req.MemberRequestDto;
 import com.ecommerce.dto.res.MemberResponseDto;
+import com.ecommerce.jwt.JwtProvider;
 import com.ecommerce.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
@@ -46,6 +47,9 @@ class MemberRestControllerTest {
 
     @MockitoBean
     MemberService memberService;
+
+    @MockitoBean
+    JwtProvider jwtProvider;
 
     @Nested
     @DisplayName("POST /api/v1/members - 회원가입")
