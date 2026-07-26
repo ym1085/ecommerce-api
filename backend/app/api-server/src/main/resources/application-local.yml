@@ -18,6 +18,10 @@ spring:
       connection-timeout: 5000 # maximum-pool-size에 도달 후 커넥션을 못 얻으면 얼마나 기다릴지(ms)
       idle-timeout: 600000 # 사용하지 않고 놀고 있는 커넥션이 10분 이상 idle 상태면 제거(ms) minimum-idle 이하는 제거 안됨
       max-lifetime: 1800000 # 커네션이 생성된 지 30분이 지나면 idle(pool 안에 존재) / 사용여부 상관없이 폐기(ms)
+  data:
+    redis:
+      host: localhost
+      port: 6379
   jpa:
     # OSIV(Open Session In View) - 웹 요청부터 응답까지 영속성 컨텍스트 유지하는 옵션
     open-in-view: false # OSIV 비활성화 (N + 1 문제 방지)
