@@ -18,5 +18,8 @@ public class JwtProperties {
     private String secret; // JWT를 만들 때 사용하는 서명용 비밀키 (Base64 인코딩된 256bit 이상 키)
 
     @Positive
-    private long expiration; // JWT가 얼마 동안 유효한지 나타내는 속성(ms)
+    private long expiration; // JWT Access Token이 얼마 동안 유효한지 나타내는 속성(ms)
+
+    @Positive
+    private long refreshExpiration; // JWT Refresh Token이 얼마 동안 유효한지 나타내는 속성(ms)
 }

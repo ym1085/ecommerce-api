@@ -14,3 +14,4 @@ mybatis:
 
 jwt:
   expiration: 3600000 # Access Token 유효기간, 1시간(ms)
+  refresh-expiration: 1209600000 # Refresh Token 유효기간, 14일(ms)
