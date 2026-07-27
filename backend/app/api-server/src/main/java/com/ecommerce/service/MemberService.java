@@ -73,7 +73,7 @@ public class MemberService {
         member.updateLastLoginAt(); // 최근 로그인 일자 업데이트 (Dirty Checking)
 
         // JWT 신규 Token 생성
-        String jwtToken = jwtProvider.createJwtToken(member.getEmail(), member.getRole().name());
+        String jwtToken = jwtProvider.createAccessToken(member.getEmail(), member.getRole().name());
 
         return MemberResponseDto.Login.builder()
                 .memberId(member.getId())

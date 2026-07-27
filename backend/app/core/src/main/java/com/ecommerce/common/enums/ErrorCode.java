@@ -13,6 +13,9 @@ public enum ErrorCode {
     INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "COMMON-002", "요청 본문을 읽을 수 없습니다."),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON-999", "서버 오류가 발생했습니다."),
 
+    // 인증 (AUTH)
+    AUTH_INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-001", "유효하지 않은 Refresh Token입니다."),
+
     // 회원 (MEMBER)
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER-001", "회원 정보를 찾을 수 없습니다."),
     MEMBER_DUPLICATE_EMAIL(HttpStatus.CONFLICT, "MEMBER-002", "이미 사용 중인 이메일입니다."),

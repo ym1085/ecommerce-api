@@ -37,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter  {
         String token = extractJwtToken(request);
 
         // 토큰이 유효할 때만 인증 정보를 심는다. 만료/위조/형식오류는 validateJwtToken에서 처리
-        if (StringUtils.hasText(token) && jwtProvider.validateJwtToken(token)) {
+        if (StringUtils.hasText(token) && jwtProvider.validateAccessToken(token)) {
             SecurityContextHolder.getContext().setAuthentication(createAuthentication(token));
         }
 
