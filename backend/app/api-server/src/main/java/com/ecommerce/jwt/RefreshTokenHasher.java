@@ -39,8 +39,10 @@ public class RefreshTokenHasher {
         if (!StringUtils.hasText(refreshToken) || !StringUtils.hasText(savedTokenHash)) {
             return false;
         }
-        byte[] actualHash = hash(refreshToken).getBytes(StandardCharsets.UTF_8);
-        byte[] expectedHash = savedTokenHash.getBytes(StandardCharsets.UTF_8);
-        return MessageDigest.isEqual(actualHash, expectedHash);
+        String actualTokenHash = hash(refreshToken);
+        return MessageDigest.isEqual(
+                actualTokenHash.getBytes(StandardCharsets.UTF_8),
+                savedTokenHash.getBytes(StandardCharsets.UTF_8)
+        );
     }
 }

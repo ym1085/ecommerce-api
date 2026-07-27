@@ -2,7 +2,7 @@ package com.ecommerce.restcontroller;
 
 import com.ecommerce.dto.req.MemberRequestDto;
 import com.ecommerce.dto.res.MemberResponseDto;
-import com.ecommerce.service.MemberService;
+import com.ecommerce.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,12 +19,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthRestController {
 
-    private final MemberService memberService;
+    private final AuthService authService;
 
     @PostMapping("/login")
     public ResponseEntity<MemberResponseDto.Login> login(
             @RequestBody @Valid MemberRequestDto.Login request) {
         log.info("로그인 요청 - email = {}", request.getEmail());
-        return ResponseEntity.status(HttpStatus.OK).body(memberService.login(request));
+        return ResponseEntity.status(HttpStatus.OK).body(authService.login(request));
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<MemberResponseDto.Reissue> reissue(
+            @RequestBody @Valid MemberRequestDto.Reissue request) {
+        log.info("Access Token 재발급 요청");
+        return ResponseEntity.status(HttpStatus.OK).body(authService.reissue(request));
     }
 }
