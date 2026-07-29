@@ -79,22 +79,36 @@ public class AuthService {
     /**
      * 유효한 Refresh Token으로 새로운 Access Token을 발급한다
      */
-    public MemberResponseDto.Reissue reissue(MemberRequestDto.Reissue request) {
+    public MemberResponseDto.Reissue reissueAccessToken(MemberRequestDto.Reissue request) {
         Long memberId = validateStoredRefreshToken(request.getRefreshToken());
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.AUTH_INVALID_REFRESH_TOKEN));
 
+        // 활성화되어 있는 유저가 아닌 경우 memberId 기반 refresh token 삭제
         if (member.getMemberStatus() != MemberStatus.ACTIVE) {
             refreshTokenRepository.deleteByMemberId(memberId);
             throw new BusinessException(ErrorCode.MEMBER_NOT_ACTIVE);
         }
 
+        // 신규 Access Token 발급
         String accessToken = jwtProvider.createAccessToken(member.getEmail(), member.getRole().name());
 
         return MemberResponseDto.Reissue.builder()
                 .accessToken(accessToken)
                 .tokenType(JwtProvider.TOKEN_TYPE)
+                .build();
+    }
+
+    public MemberResponseDto.Logout logout(MemberRequestDto.Logout request) {
+        Long memberId = validateStoredRefreshToken(request.getRefreshToken());
+        log.info("로그아웃 시도 memberId = {}", memberId);
+
+        // memberId 기반 Redis RefreshToken 삭제
+        refreshTokenRepository.deleteByMemberId(memberId);
+
+        return MemberResponseDto.Logout.builder()
+                .message("로그아웃에 성공하였습니다.")
                 .build();
     }
 
@@ -106,17 +120,19 @@ public class AuthService {
      */
     private Long validateStoredRefreshToken(String refreshToken) {
         if (!StringUtils.hasText(refreshToken) || !jwtProvider.validateRefreshToken(refreshToken)) {
+            log.warn("유효하지 않은 Refresh Token이 전달되었습니다");
             throw new BusinessException(ErrorCode.AUTH_INVALID_REFRESH_TOKEN);
         }
 
         // Claim Subject memberId 추출
-        Long memberId = jwtProvider.extractMemberId(refreshToken);
+        Long memberId = jwtProvider.extractMemberIdByRefreshToken(refreshToken);
 
         String savedTokenHash = refreshTokenRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.AUTH_INVALID_REFRESH_TOKEN));
 
         // 전달 받은 RefreshToken과 Redis에 저장된 해시(refreshTokenHash)가 일치하는지 확인
         if (!refreshTokenHasher.matches(refreshToken, savedTokenHash)) {
+            log.warn("refreshToken이 저장된 token과 일치하지 않습니다.");
             throw new BusinessException(ErrorCode.AUTH_INVALID_REFRESH_TOKEN);
         }
         return memberId;

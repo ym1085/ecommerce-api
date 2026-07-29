@@ -29,9 +29,16 @@ public class AuthRestController {
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<MemberResponseDto.Reissue> reissue(
+    public ResponseEntity<MemberResponseDto.Reissue> reissueAccessToken(
             @RequestBody @Valid MemberRequestDto.Reissue request) {
         log.info("Access Token 재발급 요청");
-        return ResponseEntity.status(HttpStatus.OK).body(authService.reissue(request));
+        return ResponseEntity.status(HttpStatus.OK).body(authService.reissueAccessToken(request));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<MemberResponseDto.Logout> logout(
+            @RequestBody @Valid MemberRequestDto.Logout request) {
+        log.info("로그아웃 시도");
+        return ResponseEntity.status(HttpStatus.OK).body(authService.logout(request));
     }
 }

@@ -103,7 +103,7 @@ public class JwtProvider {
     /**
      * Refresh Token에서 회원 ID를 추출한다
      */
-    public Long extractMemberId(String refreshToken) {
+    public Long extractMemberIdByRefreshToken(String refreshToken) {
         return Long.valueOf(parseJwtToken(refreshToken).getPayload().getSubject());
     }
 
