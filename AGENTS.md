@@ -66,6 +66,7 @@
 - 대상 메서드 1개당 `@Nested` 1개로 묶는다
 - 메서드명은 `should결과_when조건`, `@DisplayName`은 한글로 쓴다
 - BDDMockito·AssertJ를 쓰고 given/when/then 주석을 단다
+- 테스트 코드와 테스트 제안의 `given`은 요청 조건 → 조회 결과 → 분기 유도값 순으로 배치하고, 각 Mock 동작이 만드는 흐름을 짧은 한글 주석으로 설명한다
 - `src/test/java`에 운영 코드와 동일한 패키지 구조로 배치한다
 
 ## 08. 코드 성능
