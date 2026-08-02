@@ -33,6 +33,24 @@ public class MemberResponseDto {
     public static class Login {
         private Long memberId;
         private String accessToken;
+        private String refreshToken;
         private String tokenType; // "Bearer"
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Reissue {
+        private String accessToken;
+        private String tokenType;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Logout {
+        private String message;
     }
 }

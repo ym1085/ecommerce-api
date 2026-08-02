@@ -31,8 +31,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("회원 관련 REST Controller 테스트")
+@DisplayName("[Controller] 회원 관련 REST Controller 테스트")
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(MemberRestController.class)
@@ -53,6 +54,7 @@ class MemberRestControllerTest {
 
     @Nested
     @DisplayName("POST /api/v1/members - 회원가입")
+    @Order(1)
     class SignUp {
 
         @Test

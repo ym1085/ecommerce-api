@@ -48,4 +48,22 @@ public class MemberRequestDto {
         @NotBlank
         private String password;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Reissue {
+        @NotBlank
+        private String refreshToken;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Logout {
+        @NotBlank
+        private String refreshToken;
+    }
 }

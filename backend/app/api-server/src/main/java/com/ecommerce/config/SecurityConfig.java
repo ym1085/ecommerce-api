@@ -28,7 +28,9 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll() // 회원가입
-                    .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll() // 로그인화면
+                    .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll() // 로그인
+                    .requestMatchers(HttpMethod.POST, "/api/v1/auth/reissue").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").permitAll()
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                     //.requestMatchers(HttpMethod.GET, "/api/v1/members/me").hasAnyRole("USER", "ADMIN")
                     // 그 외 모두 인증 필요
