@@ -1,13 +1,16 @@
 package com.ecommerce.service;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
+import com.ecommerce.jwt.JwtProperties;
+import com.ecommerce.jwt.JwtProvider;
+import com.ecommerce.jwt.RefreshTokenHasher;
+import com.ecommerce.repository.MemberRepository;
+import com.ecommerce.repository.RefreshTokenRepository;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @DisplayName("회원 관련 Service 테스트")
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -15,4 +18,24 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
+    @Mock
+    private MemberRepository memberRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JwtProvider jwtProvider;
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Mock
+    private RefreshTokenHasher refreshTokenHasher;
+
+    @Mock
+    private JwtProperties jwtProperties;
+
+    @InjectMocks
+    private AuthService authService;
 }

@@ -62,6 +62,8 @@ public class AuthService {
         // JWT 신규 Token 생성
         String accessToken = jwtProvider.createAccessToken(member.getEmail(), member.getRole().name());
         String refreshToken = jwtProvider.createRefreshToken(member.getId());
+
+        // Redis 저장용
         String refreshTokenHash = refreshTokenHasher.hash(refreshToken);
         Duration refreshTokenTtl = Duration.ofMillis(jwtProperties.getRefreshExpiration());
 

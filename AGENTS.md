@@ -1,26 +1,113 @@
-# 에이전트 작업 지침
+# sandbox-ecommerce-api
 
-## 필수 사전 확인
+## 01. 기술 스택
 
-- 분석·코드 제안·파일 수정 전에 반드시 [CLAUDE.md](CLAUDE.md)를 전체 읽는다
-- `CLAUDE.md`와 이 파일의 내용이 다르면 `CLAUDE.md`를 우선한다
-- 코드 제안 전에는 대상 파일을 다시 읽어 사용자의 최신 수정 사항을 반영한다
+- Java 17 (Gradle toolchain 고정), Gradle 멀티모듈
+- Spring Boot 3.4.2 — Web MVC, Data JPA, Validation, Security
+- MySQL 8 + QueryDSL 5.1.0 (jakarta), Redis (refresh token 저장소)
+- JWT는 jjwt 0.12.6, Lombok
 
-## 사용자 제어
+## 02. 모듈 구조
 
-- **사용자가 "수정해", "반영해" 등 명시적으로 지시하기 전에는 파일을 생성·수정·삭제·포맷하지 않는다**
-- 검토·설명·제안·코드 보여주기 요청만으로 수정 권한을 추론하지 않는다
+| 모듈 | 포함 요소 | JAR |
+| --- | --- | --- |
+| `backend:app:core` | Entity, Repository, DTO, enums·utils, QueryDSL config | 일반 JAR |
+| `backend:app:api-server` | RestController, Controller, Service, Handler, config, 메인 클래스 | bootJar |
 
-## 커밋 관리
+## 03. 아키텍처 규칙
 
-- 작업 중 하나의 기능 단위가 완결되어 독립적으로 검증·커밋할 수 있는 시점이 되면, 다음 기능으로 넘어가기 전에 반드시 사용자에게 커밋 시점임을 알린다
-- 커밋 시점 안내에는 이번 커밋에 포함할 변경 범위와 Conventional Commits 형식의 추천 메시지를 함께 제시한다
-- 사용자의 명시적 요청 없이 실제 커밋하지 않는다
+- CRITICAL: 비즈니스 로직은 `api-server`의 Service에서만 처리한다
+- CRITICAL: DB 접근은 Repository 인터페이스로만 한다
+- CRITICAL: Entity를 Response로 노출하지 않고 DTO로 변환한다
+- Entity·Repository·DTO는 `core`, Service·Controller는 `api-server`에 둔다
+- 의존 방향은 `api-server` → `core` 단방향이다
+- REST는 `restcontroller`(`@RestController`), SSR 뷰는 `controller`(`@Controller`)에 둔다
 
-## 코드 제안 형식
+## 04. API 규칙
 
-- 대상 클래스의 패키지와 파일 경로를 먼저 밝히고, 기존 파일은 현재 라인 번호를 함께 표기한다. 새 파일은 `[신규]`로 표시한다
-- `## 목적` 한 줄 뒤에 `[신규]` 또는 `[기존 수정]` 패키지·경로·라인, 코드, 역할 설명 순서로 필요한 파일만 제시한다
-- 사용자가 코드·로직 예시를 요청하면 이 형식의 코드부터 바로 제시하고, 요청하지 않은 장황한 배경 설명·반복 요약은 덧붙이지 않는다
-- 코드 예시의 클래스·공개 메서드에는 깔끔한 한글 Javadoc을 포함한다. HTML 태그는 쓰지 않고, `@param`·`@return`은 설명이 필요한 경우에만 사용한다
-- 메서드 선언은 파라미터가 매우 많거나 한 줄이 지나치게 길어지는 예외적인 경우에만 줄바꿈한다. 두 개 정도의 짧은 파라미터는 반드시 한 줄로 작성한다
+- URL은 `/api/v{n}/리소스`, 복수형 명사, 소문자, 하이픈 구분
+- URL에 동사를 쓰지 않고 행위는 HTTP 메서드로 표현한다
+- 식별자는 경로에, 필터·정렬·페이징은 쿼리스트링에 둔다
+- 인증만 예외로 `auth` 리소스를 쓰고(`/api/v1/auth/login`) `AuthRestController`로 분리한다
+- `GET` 파라미터는 `@RequestParam`으로 개별 선언한다
+- 바디가 있는 메서드는 `@RequestBody @Valid`로 받고 검증은 요청 DTO의 Bean Validation으로 한다
+- 조회는 `GET`, 조건에 List·중첩 구조·민감정보가 있으면 `POST` + `@RequestBody`
+- 수정은 `PATCH`만 쓰고 `PUT`은 쓰지 않는다
+- 삭제는 `DELETE /리소스/{id}`로 받고 실제 처리는 soft delete로 한다
+- 응답은 `ResponseEntity.status(HttpStatus.XXX).body(dto)`로 반환하고 `ok(...)` 축약형은 쓰지 않는다
+- 생성은 `201`, 그 외 성공은 `200`
+- 반환 타입은 구체 DTO로 명시하고 `ResponseEntity<?>`는 쓰지 않는다
+- 예외는 컨트롤러에서 잡지 않고 던진다. 변환은 `ExceptionControllerHandler`가 `ErrorCode.getStatus()`로 처리한다
+
+## 05. 설정 규칙
+
+- 비밀값은 `application-secret.yml`에만 둔다 (gitignore 대상, local 프로필 전용, ADR-005)
+- `application-dev.yml`·`application-prod.yml`은 커밋 대상이며 비밀값을 넣지 않고 환경변수·Secret Manager로 주입한다
+- 플레이스홀더(`jwt.secret: ${JWT_SECRET}`)는 기동 요건이 아니라 필수 환경변수 문서화 용도로만 쓴다
+- 환경변수 주입이 전제인 프로퍼티에 기본값(`${JWT_SECRET:xxx}`)을 두지 않는다
+
+## 06. 코드 스타일
+
+- 짧은 대입문과 메서드 호출은 한 줄로 쓴다
+- 메서드 선언은 파라미터가 매우 많을 때만 줄바꿈하고 두 개 정도는 반드시 한 줄로 쓴다
+- 공개 클래스·공개 메서드에 무엇·왜·주의점을 담은 한글 Javadoc을 쓴다
+- 자명한 위임·게터성 코드에는 주석을 쓰지 않는다
+- Javadoc은 한 줄짜리도 여러 줄 형식으로 쓰고 HTML 태그를 쓰지 않는다
+- `@param`·`@return`은 설명이 필요할 때만 쓴다
+- `//` 주석은 복잡한 분기·보안 판단·설계 결정에만 쓴다
+- 주석 끝에 마침표를 붙이지 않는다
+
+## 07. 테스트 규칙
+
+- Service·Controller만 작성하고 Repository 파생 쿼리는 생략한다
+- 대표 성공 1개 + 주요 실패·분기만 작성한다
+- Service는 `@ExtendWith(MockitoExtension.class)` + `@InjectMocks`·`@Mock` 순수 단위 테스트
+- Controller는 `@WebMvcTest` + `MockMvc` + `@MockitoBean`(`@MockBean` 금지), 보안 경로는 `@Import(SecurityConfig.class)`
+- 대상 메서드 1개당 `@Nested` 1개로 묶는다
+- 메서드명은 `should결과_when조건`, `@DisplayName`은 한글로 쓴다
+- BDDMockito·AssertJ를 쓰고 given/when/then 주석을 단다
+- `src/test/java`에 운영 코드와 동일한 패키지 구조로 배치한다
+
+## 08. 코드 성능
+
+- Java 로직은 시간·공간복잡도를 고려해 작성한다. 선형 탐색이 반복되면 Map·Set으로 O(1) 조회로 바꾼다
+- 중첩 반복으로 O(n²)이 되는 구간은 자료구조·사전 인덱싱으로 낮춘다
+- 같은 데이터를 여러 번 순회하지 않고 한 번의 순회로 처리하며, 반복 계산 결과는 재사용한다
+- 대용량은 전체를 메모리에 올리지 않고 페이징·스트림으로 나눠 처리한다
+- 반복문 안에서 문자열을 `+`로 잇지 않고 `StringBuilder`를 쓴다
+- 컬렉션은 예상 크기로 초기 용량을 지정해 잦은 리사이즈를 피한다
+- 알고리즘 선택이 성능을 좌우하는 로직은 제안 설명에 시간·공간복잡도를 한 줄로 밝힌다
+
+## 09. DB 성능
+
+- SQL은 인덱스를 타게 작성한다. 인덱스를 무력화하는 조건(선두 `LIKE '%x'`, 컬럼 가공·함수 적용)을 피한다
+- 필요한 컬럼만 조회하고 `SELECT *`를 쓰지 않는다. 조회 결과는 Projection으로 DTO에 바로 담는다
+- 목록 조회는 반드시 페이징하고, 무제한 전체 조회를 하지 않는다
+- 페이징 count가 부담되면 count 쿼리를 분리하거나 커서(no-offset) 방식을 쓴다
+- 반복문 안에서 쿼리를 실행하지 않고 `IN` 절 한 번으로 묶는다
+- 대량 삽입·수정은 건별 실행 대신 batch·벌크 연산으로 처리한다
+- CRITICAL: 연관 조회에서 N+1을 만들지 않는다. fetch join·`@EntityGraph`·batch fetch로 한 번에 가져온다
+
+## 10. 작업 방식
+
+- 파일 수정은 승인 모드를 따르고, 승인 범위를 벗어난 파일은 건드리지 않는다
+- 코드 제안 전에 대상 파일을 매번 다시 읽고, 이미 반영된 코드는 다시 제안하지 않는다
+- 구현 순서는 Domain → Repository → DTO → Service → Controller → Test다
+- 제안 형식은 `## 목적` 한 줄 → `[신규]`/`[기존 수정]` 패키지·경로·라인 → 코드 → 역할 순이다
+- 로직 설명에는 핵심이 드러나는 60% 수준의 실제 코드와 처리 흐름을 함께 제시한다
+- 요청하지 않은 배경 설명·반복 요약을 덧붙이지 않는다
+- 커밋 메시지는 Conventional Commits를 따른다
+- 기능 단위가 완결되면 변경 범위와 추천 커밋 메시지를 안내하고, 지시 없이 커밋하지 않는다
+- 각 지침 항목은 규칙 하나만 임팩트 있게 담고, 항목을 늘리지 않는다.
+  한 항목이 너무 길어지면 쪼개지 말고 들여쓰기 줄바꿈으로 이어 적는다
+- 이 파일의 규칙을 바꾸면 `CLAUDE.md`도 함께 수정한다
+
+## 11. 빌드 명령어
+
+```bash
+./gradlew build                              # 전체 빌드
+./gradlew test                               # 전체 테스트
+./gradlew :backend:app:api-server:build      # api-server 빌드
+./gradlew :backend:app:api-server:test       # api-server 테스트
+./gradlew :backend:app:core:test             # core 테스트
+```
