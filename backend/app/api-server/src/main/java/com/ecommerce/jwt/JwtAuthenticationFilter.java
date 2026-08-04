@@ -1,6 +1,7 @@
 package com.ecommerce.jwt;
 
 
+import com.ecommerce.repository.AccessTokenBlacklistRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,25 +29,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter  {
     private static final String ROLE_PREFIX = "ROLE_";
 
     private final JwtProvider jwtProvider;
+    private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String token = extractJwtToken(request);
+        String accessToken = extractJwtToken(request); // accessToken 추출
 
-        // 토큰이 유효할 때만 인증 정보를 심는다. 만료/위조/형식오류는 validateJwtToken에서 처리
-        if (StringUtils.hasText(token) && jwtProvider.validateAccessToken(token)) {
-            SecurityContextHolder.getContext().setAuthentication(createAuthentication(token));
+        // 서명이 유효해도 로그아웃(블랙리스트)된 토큰이면 인증을 심지 않는다
+        // jti 추출은 hasText / validateAccessToken 통과 뒤에 해야 무효 토큰 파싱 예외를 막는다
+        if (StringUtils.hasText(accessToken)
+                && jwtProvider.validateAccessToken(accessToken)
+                && !accessTokenBlacklistRepository.existsAccessTokenJtiInBlacklist(
+                        jwtProvider.extractJtiByAccessToken(accessToken))) {
+            SecurityContextHolder.getContext().setAuthentication(createAuthentication(accessToken));
         }
 
         // 인증 여부와 무관하게 다음 필터로 넘긴다
         filterChain.doFilter(request, response);
     }
 
-    private Authentication createAuthentication(String token) {
-        Claims claims = jwtProvider.extractClaimsFromJwtToken(token);
+    private Authentication createAuthentication(String accessToken) {
+        Claims claims = jwtProvider.extractClaimsByAccessToken(accessToken);
 
         String email = claims.getSubject();
         String role = claims.get(ROLE_CLAIM, String.class);

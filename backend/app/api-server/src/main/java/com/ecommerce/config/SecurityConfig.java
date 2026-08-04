@@ -2,6 +2,7 @@ package com.ecommerce.config;
 
 import com.ecommerce.jwt.JwtAuthenticationFilter;
 import com.ecommerce.jwt.JwtProvider;
+import com.ecommerce.repository.AccessTokenBlacklistRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +23,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtProvider jwtProvider) throws Exception {
+    public SecurityFilterChain filterChain(
+            HttpSecurity http,
+            JwtProvider jwtProvider,
+            AccessTokenBlacklistRepository accessTokenBlacklistRepository
+    ) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -43,7 +48,10 @@ public class SecurityConfig {
                             -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED)) // 인증되지 않은 사용자가 인증이 필요한 API에 접근했을 때 실행 -> 401 Unauthorized
                     .accessDeniedHandler((req, res, ex)
                             -> res.sendError(HttpServletResponse.SC_FORBIDDEN))) // 인증은 됐지만 필요한 권한이 없을 때 실행 -> 403 Forbidden
-            .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class); // Spring Security 기본 필터보다 먼저 JWT 검사
+            .addFilterBefore(
+                    new JwtAuthenticationFilter(jwtProvider, accessTokenBlacklistRepository),
+                    UsernamePasswordAuthenticationFilter.class
+            ); // Spring Security 기본 필터보다 먼저 JWT 검사
 
         return http.build();
     }

@@ -38,6 +38,7 @@ out/
 
 ### Application Secret Files ###
 **/application-secret.yml
+.env
 
 ### QueryDSL Generated ###
 **/src/main/generated/

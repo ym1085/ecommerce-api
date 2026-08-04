@@ -4,6 +4,7 @@ import com.ecommerce.config.SecurityConfig;
 import com.ecommerce.dto.req.MemberRequestDto;
 import com.ecommerce.dto.res.MemberResponseDto;
 import com.ecommerce.jwt.JwtProvider;
+import com.ecommerce.repository.AccessTokenBlacklistRepository;
 import com.ecommerce.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
@@ -23,7 +24,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -49,6 +52,9 @@ class AuthRestControllerTest {
 
     @MockitoBean
     private JwtProvider jwtProvider;
+
+    @MockitoBean
+    private AccessTokenBlacklistRepository accessTokenBlacklistRepository;
 
     @Nested
     @DisplayName("POST /api/v1/auth/login")
@@ -276,11 +282,15 @@ class AuthRestControllerTest {
                     .message("로그아웃에 성공하였습니다.")
                     .build();
 
-            given(authService.logout(any(MemberRequestDto.Logout.class)))
+            given(jwtProvider.extractAccessTokenByAuthentication("Bearer accessToken"))
+                    .willReturn("accessToken");
+
+            given(authService.logout(eq("accessToken"), any(MemberRequestDto.Logout.class)))
                     .willReturn(response);
 
             // when
             ResultActions result = mockMvc.perform(post("/api/v1/auth/logout")
+                    .header("Authorization", "Bearer accessToken")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)));
 
@@ -288,6 +298,9 @@ class AuthRestControllerTest {
             result.andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.message").value("로그아웃에 성공하였습니다."));
+
+            then(jwtProvider).should().extractAccessTokenByAuthentication("Bearer accessToken");
+            then(authService).should().logout(eq("accessToken"), any(MemberRequestDto.Logout.class));
         }
 
         static Stream<Arguments> invalidLogoutRequests() {
