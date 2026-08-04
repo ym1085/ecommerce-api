@@ -11,6 +11,7 @@ import com.ecommerce.jwt.JwtProvider;
 import com.ecommerce.jwt.RefreshTokenHasher;
 import com.ecommerce.repository.MemberRepository;
 import com.ecommerce.repository.RefreshTokenRepository;
+import com.ecommerce.repository.AccessTokenBlacklistRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,6 +35,7 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final RefreshTokenHasher refreshTokenHasher;
+    private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
     private final JwtProperties jwtProperties;
 
     /**
@@ -102,12 +104,20 @@ public class AuthService {
                 .build();
     }
 
-    public MemberResponseDto.Logout logout(MemberRequestDto.Logout request) {
+    public MemberResponseDto.Logout logout(String accessToken, MemberRequestDto.Logout request) {
         Long memberId = validateStoredRefreshToken(request.getRefreshToken());
         log.info("로그아웃 시도 memberId = {}", memberId);
 
         // memberId 기반 Redis RefreshToken 삭제
         refreshTokenRepository.deleteByMemberId(memberId);
+
+        // 유효한 AccessToken 이면 Blacklist 등록
+        if (StringUtils.hasText(accessToken) && jwtProvider.validateAccessToken(accessToken)) {
+            accessTokenBlacklistRepository.saveAccessTokenJtiToBlacklist(
+                    jwtProvider.extractJtiByAccessToken(accessToken),
+                    Duration.ofMillis(jwtProvider.getRemainingMillis(accessToken))
+            );
+        }
 
         return MemberResponseDto.Logout.builder()
                 .message("로그아웃에 성공하였습니다.")

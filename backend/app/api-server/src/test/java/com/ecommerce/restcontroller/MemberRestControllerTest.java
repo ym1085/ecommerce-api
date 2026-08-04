@@ -5,6 +5,7 @@ import com.ecommerce.common.exception.BusinessException;
 import com.ecommerce.dto.req.MemberRequestDto;
 import com.ecommerce.dto.res.MemberResponseDto;
 import com.ecommerce.jwt.JwtProvider;
+import com.ecommerce.repository.AccessTokenBlacklistRepository;
 import com.ecommerce.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
@@ -51,6 +52,9 @@ class MemberRestControllerTest {
 
     @MockitoBean
     JwtProvider jwtProvider;
+
+    @MockitoBean
+    private AccessTokenBlacklistRepository accessTokenBlacklistRepository;
 
     @Nested
     @DisplayName("POST /api/v1/members - 회원가입")

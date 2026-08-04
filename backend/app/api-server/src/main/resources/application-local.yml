@@ -22,6 +22,7 @@ spring:
     redis:
       host: localhost
       port: 6379
+      password: ${REDIS_PASSWORD}
       timeout: 3s
       connect-timeout: 1s
   jpa:
@@ -33,10 +34,9 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect # Hibernate가 어떤 DB 문법으로 SQL을 만들지 알려주는 방언
         format_sql: true # Hibernate가 출력하는 SQL을 보기좋게 포맷팅
         show_sql: false # 로깅으로 대체
-        generate_statistics: true # Hibernate 내부에서 실행되는 각종 성능 통계를 수집할지 지정 (운영은 OFF)
+        generate_statistics: false # Hibernate 내부 성능 통계는 분석이 필요할 때만 활성화
         order_inserts: true # flush 직전에 INSERT문 정렬 (batch 조건 맞음)
         order_updates: true # flush 직전에 UPDATE문 정렬 (상동)
         jdbc:
@@ -49,7 +49,3 @@ logging:
     com.ecommerce: debug
     org.springframework: info
     org.hibernate.SQL: debug # Hibernate가 DB로 전송하는 SQL 문 출력
-    org.hibernate.orm.jdbc.bind: trace # Hibernate Binding Parameter
-    org.hibernate.stat: debug # Hibernate 성능 통계 정보 출력
-    com.zaxxer.hikari: debug # HikariCP 상세 로그
-    org.hibernate.orm.connections.pooling: debug # 커넥션 풀 정보

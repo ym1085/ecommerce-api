@@ -10,6 +10,7 @@ import com.ecommerce.dto.res.MemberResponseDto;
 import com.ecommerce.jwt.JwtProperties;
 import com.ecommerce.jwt.JwtProvider;
 import com.ecommerce.jwt.RefreshTokenHasher;
+import com.ecommerce.repository.AccessTokenBlacklistRepository;
 import com.ecommerce.repository.MemberRepository;
 import com.ecommerce.repository.RefreshTokenRepository;
 import org.junit.jupiter.api.*;
@@ -51,6 +52,9 @@ class AuthServiceTest {
 
     @Mock
     private RefreshTokenHasher refreshTokenHasher;
+
+    @Mock
+    private AccessTokenBlacklistRepository accessTokenBlacklistRepository;
 
     @Mock
     private JwtProperties jwtProperties;
@@ -392,9 +396,9 @@ class AuthServiceTest {
     class Logout {
 
         @Test
-        @DisplayName("유효한 Refresh Token이면 저장된 토큰을 삭제하고 로그아웃한다")
+        @DisplayName("유효한 토큰이면 Refresh Token을 삭제하고 Access Token을 블랙리스트에 등록한다")
         @Order(1)
-        void shouldDeleteRefreshToken_whenLogoutSuccess() {
+        void shouldDeleteRefreshTokenAndBlacklistAccessToken_whenLogoutSuccess() {
             // given
             // 유효한 Refresh Token으로 로그아웃 요청
             MemberRequestDto.Logout request = MemberRequestDto.Logout.builder()
@@ -409,12 +413,21 @@ class AuthServiceTest {
             given(refreshTokenRepository.findByMemberId(1L)).willReturn(Optional.of("refreshTokenHash"));
             given(refreshTokenHasher.matches("refreshToken", "refreshTokenHash")).willReturn(true);
 
+            // 유효한 Access Token의 식별자와 남은 유효시간
+            given(jwtProvider.validateAccessToken("accessToken")).willReturn(true);
+            given(jwtProvider.extractJtiByAccessToken("accessToken")).willReturn("accessTokenId");
+            given(jwtProvider.getRemainingMillis("accessToken")).willReturn(1_800_000L);
+
             // when
-            MemberResponseDto.Logout result = authService.logout(request);
+            MemberResponseDto.Logout result = authService.logout("accessToken", request);
 
             // then
             assertThat(result.getMessage()).isEqualTo("로그아웃에 성공하였습니다.");
             then(refreshTokenRepository).should().deleteByMemberId(1L);
+            then(accessTokenBlacklistRepository).should().saveAccessTokenJtiToBlacklist(
+                    "accessTokenId",
+                    Duration.ofMillis(1_800_000L)
+            );
         }
 
         @Test
@@ -432,7 +445,7 @@ class AuthServiceTest {
 
             // when
             // then
-            assertThatThrownBy(() -> authService.logout(request))
+            assertThatThrownBy(() -> authService.logout(null, request))
                     .isInstanceOf(BusinessException.class)
                     .hasFieldOrPropertyWithValue(
                             "errorCode",
@@ -440,6 +453,32 @@ class AuthServiceTest {
                     );
 
             then(refreshTokenRepository).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("Access Token이 없으면 Refresh Token만 삭제하고 로그아웃한다")
+        @Order(3)
+        void shouldDeleteOnlyRefreshToken_whenAccessTokenMissing() {
+            // given
+            MemberRequestDto.Logout request = MemberRequestDto.Logout.builder()
+                    .refreshToken("refreshToken")
+                    .build();
+
+            // Refresh Token 검증 후 회원 ID 추출
+            given(jwtProvider.validateRefreshToken("refreshToken")).willReturn(true);
+            given(jwtProvider.extractMemberIdByRefreshToken("refreshToken")).willReturn(1L);
+
+            // 전달된 토큰과 Redis 저장 해시가 일치
+            given(refreshTokenRepository.findByMemberId(1L)).willReturn(Optional.of("refreshTokenHash"));
+            given(refreshTokenHasher.matches("refreshToken", "refreshTokenHash")).willReturn(true);
+
+            // when
+            MemberResponseDto.Logout result = authService.logout(null, request);
+
+            // then
+            assertThat(result.getMessage()).isEqualTo("로그아웃에 성공하였습니다.");
+            then(refreshTokenRepository).should().deleteByMemberId(1L);
+            then(accessTokenBlacklistRepository).shouldHaveNoInteractions();
         }
     }
 }
