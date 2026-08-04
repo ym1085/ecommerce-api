@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -45,6 +46,7 @@ public class JwtProvider {
     public String createAccessToken(String email, String role) {
         Date now = new Date();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString()) // 로그아웃 블랙리스트 식별용 jti
                 .subject(email)
                 .claim(ROLE_CLAIM, role)
                 .claim(TOKEN_KIND_CLAIM, ACCESS_TOKEN_KIND)
@@ -73,9 +75,9 @@ public class JwtProvider {
      * 필터가 매 요청마다 호출하는 관문 검사
      * 만료, 위조, 형식오류를 예외로 터뜨리지 않고 false로 흡수 -> 최종 차단은 SecurityConfig의 authenticated()가 담당
      */
-    public boolean validateAccessToken(String token) {
+    public boolean validateAccessToken(String accessToken) {
         try {
-            Claims claims = parseJwtToken(token).getPayload();
+            Claims claims = parseJwtToken(accessToken).getPayload();
             return ACCESS_TOKEN_KIND.equals(claims.get(TOKEN_KIND_CLAIM, String.class))
                     && StringUtils.hasText(claims.getSubject())
                     && StringUtils.hasText(claims.get(ROLE_CLAIM, String.class));
@@ -87,9 +89,9 @@ public class JwtProvider {
     /**
      * 재발급 요청에 사용된 Refresh Token을 검증한다
      */
-    public boolean validateRefreshToken(String token) {
+    public boolean validateRefreshToken(String refreshToken) {
         try {
-            Claims claims = parseJwtToken(token).getPayload();
+            Claims claims = parseJwtToken(refreshToken).getPayload();
             if (!REFRESH_TOKEN_KIND.equals(claims.get(TOKEN_KIND_CLAIM, String.class))) {
                 return false;
             }
@@ -98,6 +100,21 @@ public class JwtProvider {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    /**
+     * Authorization 헤더에서 "Bearer " 접두를 떼고 Access Token만 반환한다
+     * 헤더가 없거나 형식이 아니면 null을 반환한다
+     *
+     * 예: Bearer eyJhbGciOiJIUzI1NiJ9...
+     */
+    public String extractAccessTokenByAuthentication(String authorizationHeader) {
+        // Bearer abc123
+        // 0123456789...
+        if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith(TOKEN_TYPE + " ")) {
+            return authorizationHeader.substring(TOKEN_TYPE.length() + 1);
+        }
+        return null;
     }
 
     /**
@@ -110,11 +127,34 @@ public class JwtProvider {
     /**
      * 검증에 성공한 토큰에서 내용물(subject=email, role)을 꺼낸다
      *
-     * @param token
+     * @param accessToken
      * @return
      */
-    public Claims extractClaimsFromJwtToken(String token) {
-        return parseJwtToken(token).getPayload();
+    public Claims extractClaimsByAccessToken(String accessToken) {
+        return parseJwtToken(accessToken).getPayload();
+    }
+
+    /**
+     * Access Token에서 jti를 추출해서, 블랙리스트 등록/조회 키로 사용한다
+     *
+     * @param accessToken
+     * @return
+     */
+    public String extractJtiByAccessToken(String accessToken) {
+        return parseJwtToken(accessToken).getPayload().getId();
+    }
+
+    /**
+     * Access Token의 남은 유효시간을 밀리초로 반환한다
+     * 블랙리스트 TTL로 써서 만료와 동시에 항목이 자동 정리되게 한다
+     */
+    public long getRemainingMillis(String accessToken) {
+        long expiration = parseJwtToken(accessToken)
+                .getPayload()
+                .getExpiration() // 만료 시각 Date 반환
+                .getTime(); // Date를 밀리초 long으로 변환
+
+        return Math.max(0, expiration - System.currentTimeMillis());
     }
 
     /**
