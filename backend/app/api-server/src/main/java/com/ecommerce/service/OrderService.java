@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -48,19 +49,22 @@ public class OrderService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
-        // 상품 ID 목록 추출
         List<Long> productIds = request.getItems()
                 .stream()
                 .map(item -> item.getProductId())
                 .collect(Collectors.toList());
 
-        // 상품 ID 기반 상품 정보 조회
-        // 비관적 락을 통해 상품 동시 주문 제어
+        // 중복 상품 요청 차단 (order_id, product_id) 유니크 제약 위반 사전 방지
+        int uniqueProductCount = new HashSet<>(productIds).size();
+        if (productIds.size() != uniqueProductCount) {
+            throw new BusinessException(ErrorCode.DUPLICATE_ORDER_ITEM);
+        }
+
+        // 비관적 락을 통해 상품 동시 주문 제어, 쿼리 수행 시 오름차순으로 데드락 방지
         Map<Long, Product> productMap = productRepository.findAllByIdWithLock(productIds)
                 .stream()
                 .collect(Collectors.toMap(product -> product.getId(), product -> product));
 
-        long totalAmount = 0L;
         List<OrderItem> orderItems = new ArrayList<>();
         for (OrderRequestDto.Item item : request.getItems()) {
             Product findProduct = productMap.get(item.getProductId()); // o(1)로 상품 조회
@@ -69,10 +73,7 @@ public class OrderService {
             }
             // 주문 정보에서 상품 수량을 기반으로 재고 차감
             findProduct.decreaseStock(item.getQuantity());
-
-            // 주문 상품 생성
             OrderItem orderItem = OrderItem.createOrderItem(findProduct, item.getQuantity());
-            totalAmount += orderItem.calculateTotalAmount();
             orderItems.add(orderItem);
         }
 
@@ -80,9 +81,7 @@ public class OrderService {
         String orderNo = CodeUtils.generate("ORD");
 
         // 주문 정보 생성 (Order)
-        Order order = Order.createOrder(orderNo, totalAmount, member);
-        orderItems.forEach(orderItem -> order.addOrderItem(orderItem)); // 양방향 연관관계 셋팅
-
+        Order order = Order.createOrder(orderNo, member, orderItems);
         orderRepository.save(order);
         return order.getId();
     }

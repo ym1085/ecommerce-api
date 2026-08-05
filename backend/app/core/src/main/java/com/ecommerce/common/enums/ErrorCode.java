@@ -29,7 +29,8 @@ public enum ErrorCode {
     PRODUCT_NOT_ORDERABLE(HttpStatus.CONFLICT, "PRODUCT-003", "주문할 수 없는 상태의 상품입니다."),
 
     // 주문 (ORDER)
-    ORDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "ORDER-001", "주문 정보를 찾을 수 없습니다.")
+    ORDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "ORDER-001", "주문 정보를 찾을 수 없습니다."),
+    DUPLICATE_ORDER_ITEM(HttpStatus.BAD_REQUEST, "ORDER-002", "동일한 상품을 중복으로 주문할 수 없습니다.")
     ;
 
     private final HttpStatus status;

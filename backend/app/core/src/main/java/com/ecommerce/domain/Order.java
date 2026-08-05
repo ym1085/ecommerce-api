@@ -50,19 +50,35 @@ public class Order extends BaseTimeEntity {
     }
 
     @Builder
-    public Order(String orderNo, Long totalAmount, Member member) {
+    public Order(String orderNo, Member member, List<OrderItem> orderItems) {
         this.orderNo = orderNo;
-        this.orderStatus = OrderStatus.ORDERED;
-        this.totalAmount = totalAmount;
         this.member = member;
+        this.orderStatus = OrderStatus.ORDERED;
+        orderItems.forEach(item -> this.addOrderItem(item)); // 양방향 연관관계 매핑
+        this.totalAmount = calculateTotalAmount();
     }
 
-    public static Order createOrder(String orderNo, Long totalAmount, Member member) {
+    /**
+     * 주문 생성 진입점
+     * 양방향 연관관계 설정과 총 주문 금액 계산을 이 메서드 안에서 모두 끝낸다
+     * 총 금액은 외부에서 주입받지 않고 주문 상품 목록에서 직접 계산한다
+     */
+    public static Order createOrder(String orderNo, Member member, List<OrderItem> orderItems) {
         return Order.builder()
                 .orderNo(orderNo)
-                .totalAmount(totalAmount)
                 .member(member)
+                .orderItems(orderItems)
                 .build();
+    }
+
+    /**
+     * 총 주문금액 계산
+     * @return
+     */
+    private Long calculateTotalAmount() {
+        return this.orderItems.stream()
+                .mapToLong(OrderItem::calculateTotalAmount)
+                .sum();
     }
 
     /**
