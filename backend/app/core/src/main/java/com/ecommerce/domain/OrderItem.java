@@ -50,17 +50,19 @@ public class OrderItem extends BaseTimeEntity {
     }
 
     @Builder
-    public OrderItem(String productName, Long unitPrice, Integer quantity, Product product) {
-        this.productName = productName;
-        this.unitPrice = unitPrice;
+    private OrderItem(Product product, Integer quantity) {
+        this.productName = product.getProductName();
+        this.unitPrice = product.getPrice();
         this.product = product;
         this.quantity = quantity;
     }
 
+    /**
+     * 주문 상품 생성
+     * 주문 시점의 상품명과 단가를 스냅샷으로 복사해 이후 상품 정보가 바뀌어도 주문 내역은 유지된다
+     */
     public static OrderItem createOrderItem(Product product, Integer quantity) {
         return OrderItem.builder()
-                .productName(product.getProductName())
-                .unitPrice(product.getPrice())
                 .product(product)
                 .quantity(quantity)
                 .build();
