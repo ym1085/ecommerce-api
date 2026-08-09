@@ -1,4 +1,3 @@
 rootProject.name = 'ecommerce-api'
-include 'frontend'
 include 'backend:app:api-server'
 include 'backend:app:core'
