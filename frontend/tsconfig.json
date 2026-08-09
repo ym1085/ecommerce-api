@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    // TypeScript가 코드를 검사할 때 ES2020 환경을 기준으로 판단
+    // 어떤 JavaScript 문법 기준으로 검사할지
+    "target": "ES2020",
+
+    // TypeScript가 코드에서 사용할 수 있다고 인정할 기본 기능 범위
+    // ES2020: Promise, Map 같은 Javascript 기능 / DOM: window, document 같은 브라우저 기능
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+
+    // import/export 문법 방식은? -> ESModule 방식
+    "module": "ESNext",
+
+    // import에 적은 경로를 실제 파일과 연결할 때 Vite가 사용하는 방식으로 찾음
+    // 예: "./App" → App.ts/App.tsx, "axios" → node_modules/axios
+    "moduleResolution": "Bundler",
+
+    // .tsx 파일 안의 <App />, <div> 같은 JSX 문법을 React 방식으로 해석
+    "jsx": "react-jsx",
+
+    // 타입이 잘못되거나 애매한 코드를 더 엄격하게 오류로 잡음
+    // 예: null 가능성, 잘못된 함수 인자, 자동으로 any가 되는 경우 등을 검사
+    "strict": true,
+
+    // tsc는 JavaScript 파일을 만들지 않고 타입 검사만 수행
+    // 실제 TS/TSX -> JS 변환은 Vite가 담당
+    "noEmit": true,
+
+    // 각 .ts/.tsx 파일을 다른 파일과 묶지 않고 따로 변환해도 문제없도록 검사
+    // Vite가 파일 단위로 변환하기 때문에 이 조건을 맞추는 용도
+    "isolatedModules": true,
+
+    // JSON 파일도 import해서 사용할 수 있게 허용
+    // 예: import data from "./data.json"
+    "resolveJsonModule": true,
+
+    // CommonJS 방식으로 만들어진 패키지도 import 문법으로 쉽게 가져올 수 있게 함
+    // 예: require("pkg") 방식 패키지를 import pkg from "pkg" 형태로 사용
+    "esModuleInterop": true,
+
+    // default export가 없는 일부 패키지도 default import 문법을 허용
+    // 예: import pkg from "pkg"
+    "allowSyntheticDefaultImports": true,
+
+    // node_modules 안의 타입 정의 파일(.d.ts)은 다시 검사하지 않음
+    // 외부 라이브러리 타입 검사 시간을 줄임
+    "skipLibCheck": true
+  },
+  // TypeScript가 검사할 파일 범위를 src 폴더로 제한
+  "include": ["src"]
+}

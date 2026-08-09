@@ -49,3 +49,22 @@ out/
 ### Phase Execution Outputs ###
 phases/**/phase*-output.json
 phases/**/step*-output.json
+
+### Frontend ###
+/frontend/node_modules/
+/frontend/dist/
+/frontend/coverage/
+/frontend/*.tsbuildinfo
+
+### Vite Local Environment ###
+/frontend/.env.local
+/frontend/.env.*.local
+
+### Frontend Tool Logs ###
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/pnpm-debug.log*
+
+### macOS ###
+.DS_Store
