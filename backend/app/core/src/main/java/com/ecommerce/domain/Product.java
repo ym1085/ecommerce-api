@@ -9,7 +9,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
+@Comment("쇼핑몰 판매 상품 정보")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "TB_PRODUCT")
@@ -18,22 +20,28 @@ public class Product extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Comment("상품 PK(예: 100)")
     @Column(name = "product_id")
     private Long id;
 
+    @Comment("고객에게 노출하는 상품명(예: 베이직 반팔 티셔츠)")
     @Column(name = "product_name", nullable = false)
     private String productName;
 
+    @Comment("상품 상세 설명(예: 면 100% 오버핏 반팔 티셔츠)")
     @Column(name = "description")
     private String description;
 
+    @Comment("상품 판매 가격(원, 예: 29900)")
     @Column(name = "price", nullable = false)
     private Long price; // Integer -> 21억 -> Long으로 해서 가격 범위를 더 크게 설정
 
     @Enumerated(EnumType.STRING)
+    @Comment("상품 판매 상태(예: ON_SALE, OUT_OF_STOCK, DISCONTINUED)")
     @Column(name = "status", nullable = false)
     private ProductStatus productStatus;
 
+    @Comment("주문 가능한 상품 재고 수량(예: 10)")
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity;
 

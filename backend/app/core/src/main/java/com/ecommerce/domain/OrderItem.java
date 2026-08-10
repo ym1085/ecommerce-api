@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
+@Comment("주문에 포함된 상품 정보")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "TB_ORDER_ITEM",
@@ -18,27 +19,30 @@ public class OrderItem extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Comment("주문 상품 PK(예: 2000)")
     @Column(name = "order_item_id")
     private Long id;
 
-    @Comment("상품명 스냅샷")
+    @Comment("주문 당시 상품명(예: 베이직 반팔 티셔츠)")
     @Column(name = "product_name", nullable = false)
     private String productName;
 
-    @Comment("상품별 가격 스냅샷")
+    @Comment("주문 당시 상품 1개 가격(원, 예: 29900)")
     @Column(name = "unit_price", nullable = false)
     private Long unitPrice;
 
-    @Comment("주문 수량 스냅샷")
+    @Comment("주문한 상품 수량(예: 2)")
     @Column(nullable = false)
     private Integer quantity;
 
     // 주문 상품(N) -> 주문(1)
+    @Comment("주문 상품이 포함된 주문 PK(예: 1000)")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
     // 상품(N) -> 주문 상품(N)
+    @Comment("주문한 상품 PK(예: 100)")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;

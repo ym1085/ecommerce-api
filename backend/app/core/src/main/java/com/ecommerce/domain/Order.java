@@ -12,6 +12,7 @@ import org.hibernate.annotations.Comment;
 import java.util.ArrayList;
 import java.util.List;
 
+@Comment("회원 주문 정보")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "TB_ORDER")
@@ -20,21 +21,25 @@ public class Order extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Comment("주문 PK(예: 1000)")
     @Column(name = "order_id")
     private Long id;
 
+    @Comment("고객에게 노출하는 주문번호(예: ORD-20260810-0001)")
     @Column(name = "order_no", nullable = false, unique = true)
     private String orderNo;
 
     @Enumerated(EnumType.STRING)
+    @Comment("주문 상태(예: ORDERED, PAID, CANCELED)")
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
 
-    @Comment("총 주문 금액")
+    @Comment("주문 상품의 총 결제 금액(원, 예: 59800)")
     @Column(name = "total_amount", nullable = false)
     private Long totalAmount;
 
     // 회원(1) -> 주문(N)
+    @Comment("주문한 회원 PK(예: 1)")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;

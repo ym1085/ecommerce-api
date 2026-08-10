@@ -8,9 +8,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
 
+@Comment("쇼핑몰 회원 정보")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "TB_MEMBER")
@@ -19,32 +21,41 @@ public class Member extends BaseTimeEntity {
 
     @Id // primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Comment("회원 PK(예: 1)")
     @Column(name = "member_id")
     private Long id;
 
+    @Comment("회원 이름(예: 홍길동)")
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Comment("암호화된 회원 비밀번호")
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Comment("회원 이메일(예: user@example.com)")
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Comment("회원 전화번호(예: 010-1234-5678)")
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
+    @Comment("회원 상태(예: ACTIVE, INACTIVE, BLOCKED)")
     @Column(name = "status", nullable = false)
     private MemberStatus memberStatus;
 
     @Enumerated(EnumType.STRING)
+    @Comment("회원 권한(예: USER, ADMIN)")
     @Column(name = "role", nullable = false)
     private Role role;
 
+    @Comment("마케팅 정보 수신 동의 여부(예: Y이면 동의)")
     @Column(name = "is_agree_marketing", nullable = false)
     private String isAgreeMarketing;
 
+    @Comment("최근 로그인일시(예: 2026-08-10 14:30:00)")
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 

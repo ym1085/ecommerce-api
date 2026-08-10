@@ -3,7 +3,9 @@ package com.ecommerce.domain;
 import com.ecommerce.common.utils.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Comment;
 
+@Comment("회원 배송지 정보")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "TB_MEMBER_ADDRESS")
@@ -12,24 +14,31 @@ public class MemberAddress extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Comment("회원 배송지 PK(예: 10)")
     @Column(name = "member_address_id")
     private Long id;
 
+    @Comment("배송지 이름(예: 우리 집, 회사)")
     @Column(name = "address_nickname", nullable = false)
     private String addressNickname;
 
+    @Comment("기본 배송지 여부(예: Y이면 기본 배송지)")
     @Column(name = "is_default", nullable = false)
     private String isDefault;
 
+    @Comment("배송지 우편번호(예: 06236)")
     @Column(name = "zip_code", nullable = false)
     private String zipCode;
 
+    @Comment("배송지 기본 주소(예: 서울특별시 강남구 테헤란로 123)")
     @Column(name = "address", nullable = false)
     private String address;
 
+    @Comment("배송지 상세 주소(예: 101동 1001호)")
     @Column(name = "address_detail")
     private String addressDetail;
 
+    @Comment("배송지를 등록한 회원 PK(예: 1)")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
