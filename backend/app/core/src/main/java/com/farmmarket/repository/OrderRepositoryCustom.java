@@ -10,5 +10,5 @@ public interface OrderRepositoryCustom {
 
     Page<OrderResponseDto.Summary> findOrders(Pageable pageable, Long memberId);
 
-    Optional<OrderResponseDto.Detail> findOrderByOrderId(Long orderId);
+    Optional<OrderResponseDto.Detail> findOrderById(Long orderId);
 }

@@ -63,7 +63,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
      * 주문 상세 조회
      */
     @Override
-    public Optional<OrderResponseDto.Detail> findOrderByOrderId(Long orderId) {
+    public Optional<OrderResponseDto.Detail> findOrderById(Long orderId) {
         OrderResponseDto.Detail order = queryFactory.select(
                         Projections.fields(OrderResponseDto.Detail.class,
                                 this.order.id.as("orderId"),

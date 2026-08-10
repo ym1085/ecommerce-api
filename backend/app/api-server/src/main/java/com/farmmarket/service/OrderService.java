@@ -35,12 +35,12 @@ public class OrderService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
 
-    public Page<OrderResponseDto.Summary> findOrders(Pageable pageable, Long memberId) {
+    public Page<OrderResponseDto.Summary> getOrders(Pageable pageable, Long memberId) {
         return orderRepository.findOrders(pageable, memberId);
     }
 
-    public OrderResponseDto.Detail findOrderByOrderId(Long orderId) {
-        return orderRepository.findOrderByOrderId(orderId)
+    public OrderResponseDto.Detail getOrderById(Long orderId) {
+        return orderRepository.findOrderById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
     }
 

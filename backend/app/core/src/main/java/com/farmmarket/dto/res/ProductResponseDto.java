@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 public class ProductResponseDto {
 
     @Getter
@@ -18,5 +20,19 @@ public class ProductResponseDto {
         private Long price;
         private ProductStatus productStatus;
         private String representativeImageUrl;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Detail {
+        private Long productId;
+        private String productName;
+        private String description;
+        private Long price;
+        private ProductStatus productStatus;
+        private Integer stockQuantity;
+        private List<String> imageUrls;
     }
 }
