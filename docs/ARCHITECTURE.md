@@ -3,12 +3,12 @@
 ## 디렉토리 구조
 
 ```
-sandbox-ecommerce-api/
+farm-market-platform/
 ├── backend/
 │   └── app/
 │       ├── core/                          # library JAR
 │       │   └── src/main/
-│       │       ├── java/com/ecommerce/
+│       │       ├── java/com/farmmarket/
 │       │       │   ├── domain/            # JPA Entity
 │       │       │   ├── repository/        # Spring Data JPA + QueryDSL Custom
 │       │       │   │   └── impl/          # QueryDSL 구현체
@@ -22,7 +22,7 @@ sandbox-ecommerce-api/
 │       │       └── generated/             # QueryDSL Q클래스 (자동생성, gitignore)
 │       └── api-server/                    # executable bootJar
 │           └── src/main/
-│               ├── java/com/ecommerce/
+│               ├── java/com/farmmarket/
 │               │   ├── restcontroller/    # @RestController (REST API)
 │               │   ├── controller/        # @Controller (SSR/MVC)
 │               │   ├── service/           # 비즈니스 로직

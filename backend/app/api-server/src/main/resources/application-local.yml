@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: sandbox-ecommerce-local
+    name: farm-market-local
   config:
     activate:
       on-profile: local
@@ -45,6 +45,6 @@ spring:
 logging:
   level:
     root: info
-    com.ecommerce: debug
+    com.farmmarket: debug
     org.springframework: info
     org.hibernate.SQL: debug # Hibernate가 DB로 전송하는 SQL 문 출력

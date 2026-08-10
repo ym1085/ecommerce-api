@@ -9,7 +9,7 @@ React 기반 프론트엔드와 Spring Boot 기반 백엔드를 하나의 저장
 ## Project Structure
 
 ```text
-ecommerce-api/
+farm-market-platform/
 ├── backend/
 │   └── app/
 │       ├── api-server/    # API 및 비즈니스 로직

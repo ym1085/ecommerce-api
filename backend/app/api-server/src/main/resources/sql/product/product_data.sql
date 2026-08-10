@@ -1,4 +1,4 @@
-USE `sandbox-ecommerce`;
+USE `farm-market`;
 
 -- ------------------------------------------------------------
 -- Product domain seed: products

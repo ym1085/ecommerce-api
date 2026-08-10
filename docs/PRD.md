@@ -1,4 +1,4 @@
-# PRD: sandbox-ecommerce-api
+# PRD: farm-market-platform
 
 ## 목표
 

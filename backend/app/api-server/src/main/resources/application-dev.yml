@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: ecommerce-dev
+    name: farm-market-dev
   config:
     activate:
       on-profile: dev
@@ -45,6 +45,6 @@ spring:
 logging:
   level:
     root: warn
-    com.ecommerce: info
+    com.farmmarket: info
     org.springframework: warn
     org.hibernate.SQL: warn

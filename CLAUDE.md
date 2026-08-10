@@ -1,4 +1,4 @@
-# sandbox-ecommerce-api
+# farm-market-platform
 
 ## 프로젝트 개요
 

@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: ecommerce-prod
+    name: farm-market-prod
   config:
     activate:
       on-profile: prod
@@ -46,6 +46,6 @@ spring:
 logging:
   level:
     root: error
-    com.ecommerce: warn
+    com.farmmarket: warn
     org.springframework: error
     org.hibernate: error
