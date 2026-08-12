@@ -36,8 +36,9 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll() // 로그인
                     .requestMatchers(HttpMethod.POST, "/api/v1/auth/reissue").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/products", "/api/v1/products/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                    //.requestMatchers(HttpMethod.GET, "/api/v1/members/me").hasAnyRole("USER", "ADMIN")
                     // 그 외 모두 인증 필요
                     .anyRequest().authenticated()
             )

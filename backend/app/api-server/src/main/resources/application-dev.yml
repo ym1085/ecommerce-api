@@ -42,6 +42,11 @@ spring:
         order_inserts: true
         order_updates: true
 
+farm-market:
+  image:
+    storage-location: file:/data/uploads/
+    base-url: https://dev.farmmarket.com/images
+
 logging:
   level:
     root: warn

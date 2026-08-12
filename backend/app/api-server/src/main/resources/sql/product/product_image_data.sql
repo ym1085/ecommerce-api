@@ -20,12 +20,12 @@ INSERT INTO TB_PRODUCT_IMAGE (
     updated_at
 )
 VALUES
-       (1, 'products/1/550e8400-e29b-41d4-a716-446655440001.webp', 'product-001-main.webp', 'image/webp', 204800, 'Y', 1, 1, NOW(), NOW()),
-       (2, 'products/2/550e8400-e29b-41d4-a716-446655440002.webp', 'product-002-main.webp', 'image/webp', 204800, 'Y', 1, 2, NOW(), NOW()),
-       (3, 'products/3/550e8400-e29b-41d4-a716-446655440003.webp', 'product-003-main.webp', 'image/webp', 204800, 'Y', 1, 3, NOW(), NOW()),
-       (4, 'products/4/550e8400-e29b-41d4-a716-446655440004.webp', 'product-004-main.webp', 'image/webp', 204800, 'Y', 1, 4, NOW(), NOW()),
-       (5, 'products/5/550e8400-e29b-41d4-a716-446655440005.webp', 'product-005-main.webp', 'image/webp', 204800, 'Y', 1, 5, NOW(), NOW()),
-       (6, 'products/6/550e8400-e29b-41d4-a716-446655440006.webp', 'product-006-main.webp', 'image/webp', 204800, 'Y', 1, 6, NOW(), NOW()),
+       (1, 'products/1/550e8400-e29b-41d4-a716-446655440001.webp', 'product-001-main.webp', 'image/webp', 12166, 'Y', 1, 1, NOW(), NOW()),
+       (2, 'products/2/550e8400-e29b-41d4-a716-446655440002.webp', 'product-002-main.webp', 'image/webp', 19626, 'Y', 1, 2, NOW(), NOW()),
+       (3, 'products/3/550e8400-e29b-41d4-a716-446655440003.webp', 'product-003-main.webp', 'image/webp', 23700, 'Y', 1, 3, NOW(), NOW()),
+       (4, 'products/4/550e8400-e29b-41d4-a716-446655440004.webp', 'product-004-main.webp', 'image/webp', 12118, 'Y', 1, 4, NOW(), NOW()),
+       (5, 'products/5/550e8400-e29b-41d4-a716-446655440005.webp', 'product-005-main.webp', 'image/webp', 4046, 'Y', 1, 5, NOW(), NOW()),
+       (6, 'products/6/550e8400-e29b-41d4-a716-446655440006.webp', 'product-006-main.webp', 'image/webp', 18242, 'Y', 1, 6, NOW(), NOW()),
        (7, 'products/7/550e8400-e29b-41d4-a716-446655440007.webp', 'product-007-main.webp', 'image/webp', 204800, 'Y', 1, 7, NOW(), NOW()),
        (8, 'products/8/550e8400-e29b-41d4-a716-446655440008.webp', 'product-008-main.webp', 'image/webp', 204800, 'Y', 1, 8, NOW(), NOW()),
        (9, 'products/9/550e8400-e29b-41d4-a716-446655440009.webp', 'product-009-main.webp', 'image/webp', 204800, 'Y', 1, 9, NOW(), NOW()),
@@ -50,4 +50,11 @@ VALUES
        (28, 'products/28/550e8400-e29b-41d4-a716-446655440028.webp', 'product-028-main.webp', 'image/webp', 204800, 'Y', 1, 28, NOW(), NOW()),
        (29, 'products/29/550e8400-e29b-41d4-a716-446655440029.webp', 'product-029-main.webp', 'image/webp', 204800, 'Y', 1, 29, NOW(), NOW()),
        (30, 'products/30/550e8400-e29b-41d4-a716-446655440030.webp', 'product-030-main.webp', 'image/webp', 204800, 'Y', 1, 30, NOW(), NOW())
-ON DUPLICATE KEY UPDATE updated_at = VALUES(updated_at);
+ON DUPLICATE KEY UPDATE image_url = VALUES(image_url),
+                        original_file_name = VALUES(original_file_name),
+                        content_type = VALUES(content_type),
+                        file_size = VALUES(file_size),
+                        is_representative = VALUES(is_representative),
+                        display_order = VALUES(display_order),
+                        product_id = VALUES(product_id),
+                        updated_at = VALUES(updated_at);
