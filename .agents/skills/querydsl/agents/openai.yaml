@@ -1,0 +1,4 @@
+interface:
+  display_name: "QueryDSL 조회 작성"
+  short_description: "프로젝트 조회 규칙에 맞는 QueryDSL 쿼리 작성과 검증 안내"
+  default_prompt: "Use $querydsl to 프로젝트 패턴에 맞는 조회 쿼리를 작성해줘."

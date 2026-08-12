@@ -1,8 +1,7 @@
 이 프로젝트의 변경 사항을 리뷰하라.
 
-먼저 다음 문서들을 읽어라:
+먼저 다음 문서들을 읽어라(CLAUDE.md는 이미 컨텍스트에 있으니 다시 읽지 않는다):
 
-- `/CLAUDE.md`
 - `/docs/ARCHITECTURE.md`
 - `/docs/ADR.md`
 

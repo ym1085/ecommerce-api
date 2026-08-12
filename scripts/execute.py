@@ -54,17 +54,18 @@ class StepExecutor:
     """Phase 디렉토리 안의 step들을 순차 실행하는 하네스."""
 
     MAX_RETRIES = 3
-    FEAT_MSG = "feat({phase}): step {num} — {name}"
-    CHORE_MSG = "chore({phase}): step {num} output"
+    FEAT_MSG = "feat: step {num} — {name} ({phase})"
+    CHORE_MSG = "chore: step {num} output ({phase})"
     TZ = timezone(timedelta(hours=9))
 
-    def __init__(self, phase_dir_name: str, *, auto_push: bool = False):
+    def __init__(self, phase_dir_name: str, *, auto_push: bool = False, only_step: Optional[int] = None):
         self._root = str(ROOT)
         self._phases_dir = ROOT / "phases"
         self._phase_dir = self._phases_dir / phase_dir_name
         self._phase_dir_name = phase_dir_name
         self._top_index_file = self._phases_dir / "index.json"
         self._auto_push = auto_push
+        self._only_step = only_step
 
         if not self._phase_dir.is_dir():
             print(f"ERROR: {self._phase_dir} not found")
@@ -84,10 +85,12 @@ class StepExecutor:
         self._print_header()
         self._check_blockers()
         self._checkout_branch()
-        guardrails = self._load_guardrails()
         self._ensure_created_at()
-        self._execute_all_steps(guardrails)
-        self._finalize()
+        if self._only_step is not None:
+            self._execute_one(self._only_step)
+        else:
+            self._execute_all_steps()
+            self._finalize()
 
     # --- timestamps ---
 
@@ -290,7 +293,7 @@ class StepExecutor:
 
     # --- 실행 루프 ---
 
-    def _execute_single_step(self, step: dict, guardrails: str) -> bool:
+    def _execute_single_step(self, step: dict) -> bool:
         """단일 step 실행 (재시도 포함). 완료되면 True, 실패/차단이면 False."""
         step_num, step_name = step["step"], step["name"]
         done = sum(1 for s in self._read_json(self._index_file)["steps"] if s["status"] == "completed")
@@ -299,6 +302,7 @@ class StepExecutor:
         for attempt in range(1, self.MAX_RETRIES + 1):
             index = self._read_json(self._index_file)
             step_context = self._build_step_context(index)
+            guardrails = self._load_guardrails()
             preamble = self._build_preamble(guardrails, step_context, prev_error)
 
             tag = f"Step {step_num}/{self._total - 1} ({done} done): {step_name}"
@@ -361,7 +365,33 @@ class StepExecutor:
 
         return False  # unreachable
 
-    def _execute_all_steps(self, guardrails: str):
+    def _execute_one(self, step_num: int):
+        """지정한 step 하나만 실행하고 멈춘다. 마지막 pending step이 끝난 경우에만 phase를 완료 처리한다."""
+        index = self._read_json(self._index_file)
+        step = next((s for s in index["steps"] if s["step"] == step_num), None)
+        if step is None:
+            print(f"  ERROR: step {step_num}을(를) 찾을 수 없습니다.")
+            sys.exit(1)
+        if step["status"] == "completed":
+            print(f"  Step {step_num} ({step['name']})은(는) 이미 완료되었습니다.")
+            return
+        if step["status"] != "pending":
+            print(f"  ERROR: step {step_num}의 status가 '{step['status']}'라 실행할 수 없습니다. pending으로 되돌린 뒤 재실행하세요.")
+            sys.exit(1)
+
+        if "started_at" not in step:
+            step["started_at"] = self._stamp()
+            self._write_json(self._index_file, index)
+
+        self._execute_single_step(step)
+
+        remaining = [s for s in self._read_json(self._index_file)["steps"] if s["status"] == "pending"]
+        if not remaining:
+            self._finalize()
+        else:
+            print(f"\n  Step {step_num} 완료. 남은 pending step {len(remaining)}개. 다음 step은 --step 으로 진행하세요.")
+
+    def _execute_all_steps(self):
         while True:
             index = self._read_json(self._index_file)
             pending = next((s for s in index["steps"] if s["status"] == "pending"), None)
@@ -376,7 +406,7 @@ class StepExecutor:
                     self._write_json(self._index_file, index)
                     break
 
-            self._execute_single_step(pending, guardrails)
+            self._execute_single_step(pending)
 
     def _finalize(self):
         index = self._read_json(self._index_file)
@@ -408,9 +438,10 @@ def main():
     parser = argparse.ArgumentParser(description="Harness Step Executor")
     parser.add_argument("phase_dir", help="Phase directory name (e.g. 0-mvp)")
     parser.add_argument("--push", action="store_true", help="Push branch after completion")
+    parser.add_argument("--step", type=int, default=None, help="지정한 step 하나만 실행하고 멈춘다")
     args = parser.parse_args()
 
-    StepExecutor(args.phase_dir, auto_push=args.push).run()
+    StepExecutor(args.phase_dir, auto_push=args.push, only_step=args.step).run()
 
 
 if __name__ == "__main__":
