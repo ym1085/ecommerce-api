@@ -54,9 +54,45 @@ class StepExecutor:
     """Phase 디렉토리 안의 step들을 순차 실행하는 하네스."""
 
     MAX_RETRIES = 3
+    DEFAULT_IMPL_AGENT = "backend-developer"
     FEAT_MSG = "feat: step {num} — {name} ({phase})"
     CHORE_MSG = "chore: step {num} output ({phase})"
     TZ = timezone(timedelta(hours=9))
+
+    ROLE_RULES = {
+        "impl": (
+            "## 역할: 구현\n\n"
+            "1. 아래 step의 `## 작업`에 명시된 구현만 하라. 테스트 작성·index.json 갱신·커밋은 다음 단계에서 하니 하지 마라.\n"
+            "2. 이전 step 코드와 일관성을 유지하고 기존 테스트를 깨뜨리지 마라.\n"
+            "3. 레이어 규칙을 지켜라 — Service·Controller는 api-server, Entity·Repository·DTO는 core.\n"
+        ),
+        "test": (
+            "## 역할: 테스트\n\n"
+            "1. 방금 구현된 코드를 읽고, CLAUDE.md 테스트 작성 규약에 따라 대표 성공 1개 + 주요 실패·분기만 작성하고 실행하라.\n"
+            "2. 운영 코드를 수정하지 마라. 테스트 코드만 추가하라.\n"
+            "3. index.json을 갱신하지 마라.\n"
+        ),
+        "review": (
+            "## 역할: 리뷰\n\n"
+            "1. 이번 step의 git 변경분(git diff)을 ARCHITECTURE.md·ADR·CLAUDE.md 기준으로 검토하라.\n"
+            "2. 지적사항을 `파일:라인 — 문제` 형식으로 stdout에 출력하라. 문제가 없으면 첫 줄에 `LGTM`만 출력하라.\n"
+            "3. 코드를 수정하지 말고 index.json도 갱신하지 마라. 리뷰만 하라.\n"
+        ),
+        "fix": (
+            "## 역할: 리뷰 반영\n\n"
+            "1. 아래 코드 리뷰 지적사항을 반영해 코드를 수정하라.\n"
+            "2. 지적사항을 넘어선 추가 변경을 하지 마라. index.json·커밋은 다음 단계에서 한다.\n"
+        ),
+        "verify": (
+            "## 역할: 검증 및 상태 기록\n\n"
+            "1. 이 step의 `## Acceptance Criteria` 커맨드를 직접 실행해 통과를 확인하라.\n"
+            "2. /phases/{dir}/index.json의 해당 step status를 갱신하라:\n"
+            "   - AC 통과 -> \"completed\" + \"summary\"에 산출물 한 줄 요약\n"
+            "   - AC 실패(수정 불가) -> \"error\" + \"error_message\"\n"
+            "   - 사용자 개입 필요(API 키·인증·수동 설정 등) -> \"blocked\" + \"blocked_reason\" 후 중단\n"
+            "3. 커밋은 하지 마라. 하네스가 커밋한다.\n"
+        ),
+    }
 
     def __init__(self, phase_dir_name: str, *, auto_push: bool = False, only_step: Optional[int] = None):
         self._root = str(ROOT)
@@ -138,10 +174,12 @@ class StepExecutor:
 
     def _commit_step(self, step_num: int, step_name: str):
         output_rel = f"phases/{self._phase_dir_name}/step{step_num}-output.json"
+        review_rel = f"phases/{self._phase_dir_name}/step{step_num}-review.md"
         index_rel = f"phases/{self._phase_dir_name}/index.json"
 
         self._run_git("add", "-A")
         self._run_git("reset", "HEAD", "--", output_rel)
+        self._run_git("reset", "HEAD", "--", review_rel)
         self._run_git("reset", "HEAD", "--", index_rel)
 
         if self._run_git("diff", "--cached", "--quiet").returncode != 0:
@@ -199,65 +237,101 @@ class StepExecutor:
             return ""
         return "## 이전 Step 산출물\n\n" + "\n".join(lines) + "\n\n"
 
-    def _build_preamble(self, guardrails: str, step_context: str,
-                        prev_error: Optional[str] = None) -> str:
-        commit_example = self.FEAT_MSG.format(
-            phase=self._phase_name, num="N", name="<step-name>"
-        )
+    def _role_prompt(self, role: str, guardrails: str, step_context: str,
+                     prev_error: Optional[str], step_body: str) -> str:
         retry_section = ""
         if prev_error:
             retry_section = (
                 f"\n## ⚠ 이전 시도 실패 — 아래 에러를 반드시 참고하여 수정하라\n\n"
                 f"{prev_error}\n\n---\n\n"
             )
+        rules = self.ROLE_RULES[role].format(dir=self._phase_dir_name)
         return (
-            f"당신은 {self._project} 프로젝트의 개발자입니다. 아래 step을 수행하세요.\n\n"
+            f"당신은 {self._project} 프로젝트의 개발자입니다.\n\n"
             f"{guardrails}\n\n---\n\n"
             f"{step_context}{retry_section}"
-            f"## 작업 규칙\n\n"
-            f"1. 이전 step에서 작성된 코드를 확인하고 일관성을 유지하라.\n"
-            f"2. 이 step에 명시된 작업만 수행하라. 추가 기능이나 파일을 만들지 마라.\n"
-            f"3. 기존 테스트를 깨뜨리지 마라.\n"
-            f"4. AC(Acceptance Criteria) 검증을 직접 실행하라.\n"
-            f"5. /phases/{self._phase_dir_name}/index.json의 해당 step status를 업데이트하라:\n"
-            f"   - AC 통과 → \"completed\" + \"summary\" 필드에 이 step의 산출물을 한 줄로 요약\n"
-            f"   - {self.MAX_RETRIES}회 수정 시도 후에도 실패 → \"error\" + \"error_message\" 기록\n"
-            f"   - 사용자 개입이 필요한 경우 (API 키, 인증, 수동 설정 등) → \"blocked\" + \"blocked_reason\" 기록 후 즉시 중단\n"
-            f"6. 모든 변경사항을 커밋하라:\n"
-            f"   {commit_example}\n\n---\n\n"
+            f"{rules}\n---\n\n"
+            f"{step_body}"
         )
 
     # --- Claude 호출 ---
 
-    def _invoke_claude(self, step: dict, preamble: str) -> dict:
-        step_num, step_name = step["step"], step["name"]
-        step_file = self._phase_dir / f"step{step_num}.md"
-
-        if not step_file.exists():
-            print(f"  ERROR: {step_file} not found")
-            sys.exit(1)
-
-        prompt = preamble + step_file.read_text()
-        result = subprocess.run(
-            ["claude", "-p", "--dangerously-skip-permissions", "--output-format", "json", prompt],
-            cwd=self._root, capture_output=True, text=True, timeout=1800,
-        )
-
+    def _run_claude(self, prompt: str, agent: Optional[str] = None) -> subprocess.CompletedProcess:
+        cmd = ["claude", "-p", "--dangerously-skip-permissions", "--output-format", "json"]
+        if agent:
+            cmd += ["--agent", agent]
+        cmd.append(prompt)
+        result = subprocess.run(cmd, cwd=self._root, capture_output=True, text=True, timeout=1800)
         if result.returncode != 0:
             print(f"\n  WARN: Claude가 비정상 종료됨 (code {result.returncode})")
             if result.stderr:
                 print(f"  stderr: {result.stderr[:500]}")
+        return result
+
+    @staticmethod
+    def _extract_text(result: subprocess.CompletedProcess) -> str:
+        try:
+            data = json.loads(result.stdout)
+            if isinstance(data, dict) and "result" in data:
+                return str(data["result"])
+        except (json.JSONDecodeError, ValueError):
+            pass
+        return result.stdout or ""
+
+    @staticmethod
+    def _review_is_clean(text: str) -> bool:
+        t = text.strip()
+        return (not t) or t.upper().startswith("LGTM") or len(t) < 40
+
+    def _invoke_pipeline(self, step: dict, guardrails: str, step_context: str,
+                         prev_error: Optional[str], tag: str) -> int:
+        """구현→테스트→리뷰→리뷰반영→검증을 역할별 서브에이전트로 순차 실행한다.
+
+        핸드오프는 공유 작업트리로 하고, 마지막 검증 단계가 index.json 상태를 기록한다."""
+        step_num, step_name = step["step"], step["name"]
+        step_file = self._phase_dir / f"step{step_num}.md"
+        if not step_file.exists():
+            print(f"  ERROR: {step_file} not found")
+            sys.exit(1)
+
+        step_body = step_file.read_text()
+        impl_agent = step.get("agent", self.DEFAULT_IMPL_AGENT)
+        results = []
+        total_elapsed = 0.0
+
+        def stage(label, role, agent, extra=""):
+            nonlocal total_elapsed
+            prompt = self._role_prompt(role, guardrails, step_context, prev_error, step_body) + extra
+            with progress_indicator(f"{tag} · {label}") as pi:
+                r = self._run_claude(prompt, agent)
+                total_elapsed += pi.elapsed
+            results.append((label, r))
+            return r
+
+        stage("구현", "impl", impl_agent)
+        stage("테스트", "test", "test-engineer")
+
+        review = stage("리뷰", "review", "code-reviewer")
+        review_text = self._extract_text(review)
+        (self._phase_dir / f"step{step_num}-review.md").write_text(review_text, encoding="utf-8")
+
+        if not self._review_is_clean(review_text):
+            stage("리뷰 반영", "fix", impl_agent, extra=f"\n\n## 코드 리뷰 지적사항\n\n{review_text}\n")
+
+        stage("검증", "verify", None)
 
         output = {
             "step": step_num, "name": step_name,
-            "exitCode": result.returncode,
-            "stdout": result.stdout, "stderr": result.stderr,
+            "stages": [
+                {"stage": label, "exitCode": r.returncode, "stdout": r.stdout, "stderr": r.stderr}
+                for label, r in results
+            ],
         }
         out_path = self._phase_dir / f"step{step_num}-output.json"
-        with open(out_path, "w") as f:
+        with open(out_path, "w", encoding="utf-8") as f:
             json.dump(output, f, indent=2, ensure_ascii=False)
 
-        return output
+        return int(total_elapsed)
 
     # --- 헤더 & 검증 ---
 
@@ -303,15 +377,12 @@ class StepExecutor:
             index = self._read_json(self._index_file)
             step_context = self._build_step_context(index)
             guardrails = self._load_guardrails()
-            preamble = self._build_preamble(guardrails, step_context, prev_error)
 
             tag = f"Step {step_num}/{self._total - 1} ({done} done): {step_name}"
             if attempt > 1:
                 tag += f" [retry {attempt}/{self.MAX_RETRIES}]"
 
-            with progress_indicator(tag) as pi:
-                self._invoke_claude(step, preamble)
-                elapsed = int(pi.elapsed)
+            elapsed = self._invoke_pipeline(step, guardrails, step_context, prev_error, tag)
 
             index = self._read_json(self._index_file)
             status = next((s.get("status", "pending") for s in index["steps"] if s["step"] == step_num), "pending")

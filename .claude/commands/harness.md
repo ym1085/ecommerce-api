@@ -33,6 +33,8 @@
    "조심해라" 대신 "X를 하지 마라. 이유: Y" 형식으로 적는다.
 7. **네이밍**
    step name은 핵심 모듈/작업을 한두 단어 kebab-case slug로 표현한다 (예: `project-setup`, `api-layer`, `auth-flow`).
+8. **구현 담당 지정**
+   step마다 index.json의 `agent`에 구현 담당을 지정한다. 백엔드 step이면 `backend-developer`, 프론트 step이면 `frontend-developer`. 테스트·리뷰 단계는 execute.py가 test-engineer·code-reviewer로 고정 실행한다.
 
 ### D. 파일 생성
 
@@ -64,9 +66,9 @@
   "project": "<프로젝트명>",
   "phase": "<task-name>",
   "steps": [
-    { "step": 0, "name": "project-setup", "status": "pending" },
-    { "step": 1, "name": "core-types", "status": "pending" },
-    { "step": 2, "name": "api-layer", "status": "pending" }
+    { "step": 0, "name": "project-setup", "status": "pending", "agent": "backend-developer" },
+    { "step": 1, "name": "core-types", "status": "pending", "agent": "backend-developer" },
+    { "step": 2, "name": "product-list-ui", "status": "pending", "agent": "frontend-developer" }
   ]
 }
 ```
@@ -78,6 +80,7 @@
 - `steps[].step`: 0부터 시작하는 순번.
 - `steps[].name`: kebab-case slug.
 - `steps[].status`: 초기값은 모두 `"pending"`.
+- `steps[].agent`: 구현 담당 서브에이전트. 백엔드 step이면 `"backend-developer"`, 프론트 step이면 `"frontend-developer"`. 생략하면 `"backend-developer"`로 처리한다.
 
 상태 전이와 자동 기록 필드:
 
@@ -154,7 +157,8 @@ D에서 파일 생성이 끝나면 **자동으로 실행하지 않고 멈춘다.
 - `feat-{task-name}` 브랜치 생성/checkout
 - 가드레일 주입 — CLAUDE.md + docs/\*.md 내용을 step 프롬프트에 포함
 - 컨텍스트 누적 — 완료된 이전 step의 summary를 프롬프트에 전달
-- 자가 교정 — AC 실패 시 최대 3회 재시도하며, 이전 에러 메시지를 프롬프트에 피드백
+- 서브에이전트 파이프라인 — 한 step을 `구현({agent}) → 테스트(test-engineer) → 리뷰(code-reviewer) → 리뷰 반영 → 검증` 순으로 역할별 세션에 나눠 실행한다. 핸드오프는 공유 작업트리로 하고, 리뷰가 LGTM이면 반영 단계를 건너뛴다
+- 자가 교정 — AC 실패 시 파이프라인 전체를 최대 3회 재시도하며, 이전 에러 메시지를 프롬프트에 피드백
 - 2단계 커밋 — 코드 변경(`feat`)과 메타데이터(`chore`)를 분리 커밋
 - 타임스탬프 — started_at, completed_at, failed_at, blocked_at 자동 기록
 - 완료 후 정지. 마지막 pending step이 끝난 경우에만 phase를 `completed`로 처리한다.

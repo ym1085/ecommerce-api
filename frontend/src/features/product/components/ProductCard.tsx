@@ -1,4 +1,4 @@
-import type { Product } from '../../mocks/products';
+import type { Product } from '@/features/product/model/product';
 
 /**
  * 상품 한 건을 보여주는 카드

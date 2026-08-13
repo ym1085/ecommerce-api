@@ -1,4 +1,4 @@
-import { products } from '../../mocks/products';
+import { products } from '@/features/product/model/product';
 import ProductCard from './ProductCard';
 
 /**
