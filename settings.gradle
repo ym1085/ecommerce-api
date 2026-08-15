@@ -1,3 +1,3 @@
-rootProject.name = 'ecommerce-api'
+rootProject.name = 'farm-market-platform'
 include 'backend:app:api-server'
 include 'backend:app:core'

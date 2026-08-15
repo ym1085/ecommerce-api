@@ -247,7 +247,7 @@ class TestBuildPreamble:
 
     def test_includes_commit_example(self, executor):
         result = executor._build_preamble("", "")
-        assert "feat(mvp):" in result
+        assert "feat: step N — <step-name> (mvp)" in result
 
     def test_includes_rules(self, executor):
         result = executor._build_preamble("", "")
@@ -396,8 +396,8 @@ class TestCommitStep:
 
         commit_calls = [c for c in calls if c[0] == "commit"]
         assert len(commit_calls) == 2
-        assert "feat(mvp):" in commit_calls[0][2]
-        assert "chore(mvp):" in commit_calls[1][2]
+        assert "feat: step 2 — ui (mvp)" in commit_calls[0][2]
+        assert "chore: step 2 output (mvp)" in commit_calls[1][2]
 
     def test_no_code_changes_skips_feat_commit(self, executor):
         call_count = {"diff": 0}
@@ -468,6 +468,34 @@ class TestInvokeClaude:
             executor._invoke_claude(step, "preamble")
 
         assert mock_run.call_args[1]["timeout"] == 1800
+
+
+# ---------------------------------------------------------------------------
+# _execute_single_step
+# ---------------------------------------------------------------------------
+
+class TestExecuteSingleStep:
+    def test_reloads_guardrails_before_retry(self, executor):
+        step = {"step": 2, "name": "ui", "status": "pending"}
+        prompts = []
+
+        def fake_invoke(_, preamble):
+            prompts.append(preamble)
+            if len(prompts) == 2:
+                index = json.loads(executor._index_file.read_text())
+                index["steps"][2]["status"] = "completed"
+                executor._write_json(executor._index_file, index)
+
+        executor._load_guardrails = MagicMock(side_effect=["GUARD-1", "GUARD-2"])
+        executor._invoke_claude = fake_invoke
+        executor._commit_step = MagicMock()
+
+        result = executor._execute_single_step(step)
+
+        assert result is True
+        assert executor._load_guardrails.call_count == 2
+        assert "GUARD-1" in prompts[0]
+        assert "GUARD-2" in prompts[1]
 
 
 # ---------------------------------------------------------------------------

@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: ecommerce-dev
+    name: farm-market-dev
   config:
     activate:
       on-profile: dev
@@ -42,9 +42,14 @@ spring:
         order_inserts: true
         order_updates: true
 
+farm-market:
+  image:
+    storage-location: file:/data/uploads/
+    base-url: https://dev.farmmarket.com/images
+
 logging:
   level:
     root: warn
-    com.ecommerce: info
+    com.farmmarket: info
     org.springframework: warn
     org.hibernate.SQL: warn

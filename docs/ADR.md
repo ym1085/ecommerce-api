@@ -1,66 +1,95 @@
 # Architecture Decision Records
 
-## 철학
+이 문서는 하네스의 모든 Step이 따라야 할 확정된 기술 결정을 기록한다. 결정을 바꾸는 작업은 기존 내용을 조용히 덮어쓰지 않고 ADR을 추가하거나 대체 상태를 명시한다.
 
-중소 규모 B2C 쇼핑몰 백엔드 REST API.
-표준 Spring 생태계를 준수하고 과도한 추상화를 배제한다.
-운영 가능한 수준의 코드 품질과 아키텍처 일관성을 목표로 한다.
+## ADR-001: Java 17과 Spring Boot 3.4.2
 
----
+- **상태**: 채택
+- **결정**: Java 17을 Gradle toolchain으로 고정하고 Spring Boot 3.4.2와 `jakarta.*` API를 사용한다.
+- **이유**: 실행 환경을 통일하고 Spring Boot 3 생태계와 호환한다.
+- **제약**: Java 21 전용 기능과 `javax.*` 기반 라이브러리를 도입하지 않는다.
 
-### ADR-001: Java 17 + Spring Boot 3.4.2
+## ADR-002: core와 api-server 멀티모듈
 
-**결정**: Java 17 LTS, Spring Boot 3.4.2 사용. Gradle toolchain으로 JDK 버전 고정.
+- **상태**: 채택
+- **결정**: `core`는 일반 JAR, `api-server`는 실행 가능한 bootJar로 구성하고 `api-server → core` 단방향 의존만 허용한다.
+- **이유**: 영속 모델·저장소·DTO와 실행 애플리케이션의 책임을 분리한다.
+- **제약**: Entity·Repository·DTO는 `core`, Service·Controller는 `api-server`에 둔다.
 
-**이유**: Java 17은 LTS 버전으로 안정성이 보장된다.
-Spring Boot 3.x는 `jakarta.*` 네임스페이스를 표준으로 채택하여 Jakarta EE 10 기반 생태계와 정렬된다.
-toolchain 설정으로 로컬 환경에 관계없이 동일한 JDK 버전을 보장한다.
+## ADR-003: JPA와 QueryDSL 조회 전략
 
-**트레이드오프**: Java 21의 가상 스레드(Project Loom) 및 레코드 패턴 등 최신 기능을 사용하지 않는다.
+- **상태**: 채택
+- **결정**: 기본 영속성은 Spring Data JPA, 동적 조건과 DTO Projection은 QueryDSL 5.1.0 jakarta Custom Repository로 구현한다.
+- **이유**: 단순 조회의 생산성과 복잡 조회의 타입 안전성을 함께 확보한다.
+- **제약**: Q클래스는 `src/main/generated`에 생성하고 커밋하지 않는다. 페이징과 컬렉션 fetch join을 함께 사용하지 않는다.
 
----
+## ADR-004: MySQL 8
 
-### ADR-002: Gradle 멀티모듈 — core / api-server 분리
+- **상태**: 채택
+- **결정**: 운영 관계형 데이터베이스로 MySQL 8을 사용한다.
+- **이유**: 운영 DB와 동일한 방언과 제약조건을 기준으로 개발한다.
+- **제약**: 현재 Service·Controller 테스트는 순수 단위·슬라이스 테스트로 작성한다. DB 통합 테스트를 추가할 때는 H2로 대체하지 않고 Testcontainers 기반 MySQL을 함께 도입한다.
 
-**결정**: `backend:app:core` (library JAR) + `backend:app:api-server` (bootJar) 2개 모듈로 분리.
+## ADR-005: 프로파일과 비밀값 분리
 
-**이유**: Entity·Repository·DTO를 `core`에 격리하고 `api-server`가 단방향으로 의존하도록 강제한다.
-관심사 분리가 명확해지며, 향후 `core`를 다른 실행 모듈에서 재사용하는 구조로 확장이 용이하다.
+- **상태**: 채택
+- **결정**: 공통, local, dev, prod 설정을 분리하고 local 비밀값은 Git에서 제외된 `application-secret.yml`에만 둔다. dev·prod 비밀값은 환경변수 또는 Secret Manager로 주입한다.
+- **이유**: 환경별 설정 차이를 명시하면서 비밀값 커밋을 차단한다.
+- **제약**: dev·prod 필수 비밀값 플레이스홀더에 기본값을 두지 않는다. `application-secret.example.yml`에는 실제 비밀값을 넣지 않는다.
 
-**트레이드오프**: 단일 모듈 대비 빌드 설정 복잡도가 증가한다. `settings.gradle`, 각 모듈의 `build.gradle` 관리 비용이 발생한다.
+## ADR-006: 상품 이미지 경로 저장
 
----
+- **상태**: 채택
+- **결정**: DB에는 이미지 경로만 저장하고 응답 시 `ImageUrlConverter`가 환경별 base URL과 조합한다. 대표 이미지는 `representativeYn='Y'`로 구분한다.
+- **이유**: 호스트가 바뀌어도 저장 데이터를 수정하지 않기 위해서다.
+- **제약**: 목록은 대표 이미지 한 건만 조회하고, 상세 이미지는 `displayOrder` 오름차순으로 조회하며 N+1을 만들지 않는다.
 
-### ADR-003: QueryDSL 5.1.0 (jakarta)
+## ADR-007: JWT와 Spring Security 인증
 
-**결정**: Spring Data JPA와 QueryDSL 5.1.0 jakarta 버전을 병행 사용. 복잡 쿼리는 `{Domain}RepositoryCustom` + `{Domain}RepositoryImpl` 패턴으로 분리.
+- **상태**: 채택
+- **결정**: Spring Security의 stateless filter chain과 jjwt 0.12.6을 사용한다. Access Token에는 인증 주체와 역할을 담고 보호 API는 JWT 필터에서 인증한다.
+- **이유**: 서버 HTTP 세션 없이 REST API 인증을 유지한다.
+- **제약**: 공개 경로는 `SecurityConfig`에 명시한다. 비밀번호·JWT secret·토큰 원문을 로그나 응답 오류에 노출하지 않는다.
 
-**이유**: 동적 조건 쿼리를 타입 안전하게 작성할 수 있다.
-JPQL·Native 쿼리의 문자열 기반 오류를 컴파일 타임에 방지한다.
-jakarta 버전은 Spring Boot 3.x의 jakarta 네임스페이스와 호환된다.
+## ADR-008: Redis 토큰 저장소
 
-**트레이드오프**: Q클래스 자동 생성을 위한 APT(Annotation Processing) 빌드 단계가 필요하다.
-`src/main/generated/`는 gitignore 처리하며 빌드 시마다 재생성된다.
+- **상태**: 채택
+- **결정**: Refresh Token은 해시 후 회원 ID 기준으로 Redis에 TTL과 함께 저장하고, 로그아웃한 Access Token JTI는 남은 수명 동안 blacklist에 저장한다.
+- **이유**: Refresh Token 탈취 피해를 줄이고 로그아웃을 즉시 반영한다.
+- **제약**: Redis 구현은 `core.repository.redis`, 사용 흐름은 `api-server` Service에 둔다. Redis 장애와 DB 트랜잭션을 원자적으로 가정하지 않는다.
 
----
+## ADR-009: MyBatis 사용 범위
 
-### ADR-004: MySQL 8
+- **상태**: 채택
+- **결정**: MyBatis는 통계·집계처럼 SQL 형태를 직접 제어해야 하는 읽기 쿼리에만 사용한다.
+- **이유**: JPA·QueryDSL로 복잡한 집계를 우회 구현하는 비용을 줄인다.
+- **제약**: 일반 CRUD와 상태 변경은 JPA Repository로 처리한다. Mapper 인터페이스와 XML은 `core`에 둔다.
 
-**결정**: MySQL 8을 메인 데이터베이스로 사용.
+## ADR-010: API와 오류 응답
 
-**이유**: 팀 표준 RDB. JSON 컬럼, Window Function, CTE 등 8.x 기능을 활용할 수 있다.
-운영 환경과 동일한 DB를 개발에서도 사용하여 방언(Dialect) 차이로 인한 버그를 방지한다.
+- **상태**: 채택
+- **결정**: REST 경로는 `/api/v{n}/resources` 형식을 사용하고 수정은 PATCH, 삭제는 DELETE와 soft delete를 사용한다. 오류는 `BusinessException → ErrorCode → ExceptionControllerHandler` 흐름으로 변환한다.
+- **이유**: 클라이언트가 성공·실패 계약을 일관되게 처리하도록 한다.
+- **제약**: Controller에서 예외를 잡지 않는다. Entity를 응답하지 않는다. 생성은 201, 그 외 성공은 200을 사용하고 구체 DTO 타입의 `ResponseEntity.status(...).body(...)`를 반환한다.
 
-**트레이드오프**: H2 인메모리 DB 기반의 경량 테스트가 불가하다.
-테스트 환경에서는 Testcontainers로 MySQL 컨테이너를 띄워 실제 DB와 동일한 환경에서 검증한다.
+## ADR-011: Service 트랜잭션 경계
 
----
+- **상태**: 채택
+- **결정**: 비즈니스 로직과 트랜잭션 경계는 Service에 둔다. 기본 조회는 read-only, 상태 변경은 쓰기 트랜잭션으로 실행한다.
+- **이유**: 여러 Repository 호출과 도메인 상태 변경을 하나의 유스케이스 단위로 관리한다.
+- **제약**: Controller와 Repository 구현체에 비즈니스 분기를 두지 않는다. 외부 시스템 호출을 DB 트랜잭션과 원자적이라고 가정하지 않는다.
 
-### ADR-005: Spring 프로파일 분리 — local / dev / prod + secret
+## ADR-012: 주문 재고 동시성
 
-**결정**: `application.yml` (공통) + `application-{local|dev|prod}.yml` (환경별) + `application-secret.yml` (시크릿, gitignore).
+- **상태**: 채택
+- **결정**: 주문 생성 시 대상 상품을 ID 오름차순으로 비관적 잠금하고 재고 검증·차감과 주문 저장을 같은 트랜잭션에서 처리한다.
+- **이유**: 초과 판매를 막고 잠금 순서를 통일해 데드락 가능성을 낮춘다.
+- **제약**: 상품별 반복 조회를 하지 않고 한 번의 `IN` 조회로 잠근다. 동일 상품이 중복된 주문 요청은 저장 전에 거부한다.
 
-**이유**: 환경별 설정을 명확히 분리한다. DB 접속 정보·API 키 등 민감 정보를 `application-secret.yml`에 격리하고 소스코드 저장소에 노출되지 않도록 한다.
+## 미결정 사항
 
-**트레이드오프**: 새 개발자가 로컬 환경 구성 시 `application-secret.yml`을 수동으로 생성해야 한다.
-온보딩 문서에 해당 파일의 필수 키 목록을 별도로 관리해야 한다.
+- 결제 PG와 승인·취소·웹훅 처리 방식
+- 결제 멱등키와 실패 보상 정책
+- 관리자 상품 관리의 상세 권한과 상태 전이
+
+미결정 사항이 구현 결과를 바꾸면 하네스는 임의의 기술을 선택하지 않고 사용자 결정을 받거나 해당 Step을 `blocked`로 기록한다.

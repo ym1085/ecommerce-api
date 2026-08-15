@@ -1,5 +1,11 @@
 {
   "compilerOptions": {
+    // import 경로의 기준 디렉터리와 @ alias 매핑
+    // "@/features/..."를 src 기준 절대경로로 해석해 상대경로 지옥을 없앤다
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] },
+    "types": ["node"],
+
     // TypeScript가 코드를 검사할 때 ES2020 환경을 기준으로 판단
     // 어떤 JavaScript 문법 기준으로 검사할지
     "target": "ES2020",
@@ -47,5 +53,5 @@
     "skipLibCheck": true
   },
   // TypeScript가 검사할 파일 범위를 src 폴더로 제한
-  "include": ["src"]
+  "include": ["src", "vite.config.ts"]
 }
