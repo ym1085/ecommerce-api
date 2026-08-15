@@ -1,24 +1,12 @@
 /**
  * 애플리케이션 최상위 컴포넌트
- * 레이아웃(Header, Hero, Footer)과 화면 콘텐츠를 조립하는 역할만 하고
- * 자체 UI 로직은 두지 않는다
+ * 라우터를 꽂는 역할만 하고 화면 조립·UI 로직은 각 page가 담당한다
  */
-import Header from '../components/layout/Header';
-import Hero from '../components/layout/Hero';
-import Footer from '../components/layout/Footer';
-import ProductGrid from '../components/product/ProductGrid';
+import { RouterProvider } from 'react-router-dom';
+import { router } from './routes';
 
 function App() {
-  return (
-    <div>
-      <Header />
-      <Hero />
-      <main>
-        <ProductGrid />
-      </main>
-      <Footer />
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;

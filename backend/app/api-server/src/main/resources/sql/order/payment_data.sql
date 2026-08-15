@@ -1,4 +1,4 @@
-USE `sandbox-ecommerce`;
+USE `farm-market`;
 
 -- ------------------------------------------------------------
 -- Order domain seed: payments

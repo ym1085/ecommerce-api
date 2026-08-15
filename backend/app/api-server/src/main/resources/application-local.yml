@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: sandbox-ecommerce-local
+    name: farm-market-local
   config:
     activate:
       on-profile: local
@@ -42,9 +42,14 @@ spring:
           batch_size: 20 # INSERT/UPDATE SQL을 몇 개씩 모아서 DB에 한번에 보낼지
         default_batch_fetch_size: 1000
 
+farm-market:
+  image:
+    storage-location: file:///C:/farmmarket/uploads/ # 서버가 파일을 찾는 물리 위치
+    base-url: http://localhost:8080/images # 사용자가 파일을 보는 주소
+
 logging:
   level:
     root: info
-    com.ecommerce: debug
+    com.farmmarket: debug
     org.springframework: info
     org.hibernate.SQL: debug # Hibernate가 DB로 전송하는 SQL 문 출력

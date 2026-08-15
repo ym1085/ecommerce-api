@@ -1,0 +1,7 @@
+interface:
+  display_name: "대화형 멀티 에이전트 개발"
+  short_description: "설계부터 리뷰까지 사용자 승인에 맞춰 진행하는 개발 워크플로"
+  default_prompt: "Use $develop to 기능을 설계, 구현, 테스트, 리뷰 순서로 진행해줘."
+
+policy:
+  allow_implicit_invocation: false
