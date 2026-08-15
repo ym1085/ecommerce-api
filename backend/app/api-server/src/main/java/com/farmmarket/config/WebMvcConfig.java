@@ -2,6 +2,7 @@ package com.farmmarket.config;
 
 import com.farmmarket.config.properties.ImageProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Profile({"local", "dev"})
 @RequiredArgsConstructor
 @Configuration
+@EnableConfigurationProperties(ImageProperties.class)
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final ImageProperties imageProperties;
