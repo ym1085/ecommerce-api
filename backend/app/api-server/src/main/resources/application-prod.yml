@@ -42,6 +42,8 @@ spring:
           batch_size: 100
         order_inserts: true
         order_updates: true
+        type:
+          preferred_enum_jdbc_type: VARCHAR # enum 컬럼을 네이티브 enum 대신 VARCHAR로 매핑
 
 logging:
   level:
