@@ -41,10 +41,12 @@ spring:
         jdbc:
           batch_size: 20 # INSERT/UPDATE SQL을 몇 개씩 모아서 DB에 한번에 보낼지
         default_batch_fetch_size: 1000
+        type:
+          preferred_enum_jdbc_type: VARCHAR # enum 컬럼을 네이티브 enum 대신 VARCHAR로 생성
 
 farm-market:
   image:
-    storage-location: file:///C:/farmmarket/uploads/ # 서버가 파일을 찾는 물리 위치
+    storage-location: file:${user.home}/farmmarket/uploads/ # 각 개발자 홈 아래, OS 무관
     base-url: http://localhost:8080/images # 사용자가 파일을 보는 주소
 
 logging:

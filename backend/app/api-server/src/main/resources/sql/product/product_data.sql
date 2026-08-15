@@ -3,7 +3,7 @@ USE `farm-market`;
 -- ------------------------------------------------------------
 -- Product domain seed: products
 -- - Table: TB_PRODUCT
--- - Rows: 6 visible products and 24 discontinued fixtures
+-- - Rows: 9 visible products and 21 discontinued fixtures
 -- ------------------------------------------------------------
 
 INSERT INTO TB_PRODUCT (product_id, product_name, description, price, status, stock_quantity, created_at, updated_at)
@@ -14,9 +14,9 @@ VALUES
        (4, '공심채 300g', '여름 농장에서 자란 아삭한 공심채', 4500, 'UPCOMING', 0, NOW(), NOW()),
        (5, '참외 2kg', '여름 햇볕을 맞으며 자란 제철 참외', 15900, 'OUT_OF_STOCK', 0, NOW(), NOW()),
        (6, '애플수박 1통', '초보 농부의 도전으로 키운 애플수박', 12900, 'OUT_OF_STOCK', 0, NOW(), NOW()),
-       (7, '테스트 상품 007', '테스트 설명 007', 45000, 'DISCONTINUED', 27, NOW(), NOW()),
-       (8, '테스트 상품 008', '테스트 설명 008', 50000, 'DISCONTINUED', 28, NOW(), NOW()),
-       (9, '테스트 상품 009', '테스트 설명 009', 55000, 'DISCONTINUED', 29, NOW(), NOW()),
+       (7, '방울토마토 1kg', '탱글하고 달콤하게 익은 방울토마토', 8900, 'ON_SALE', 25, NOW(), NOW()),
+       (8, '햇당근 1kg', '흙에서 갓 수확한 아삭한 햇당근', 5900, 'ON_SALE', 20, NOW(), NOW()),
+       (9, '초당옥수수 5개', '생으로도 달콤한 제철 초당옥수수', 11900, 'ON_SALE', 15, NOW(), NOW()),
        (10, '테스트 상품 010', '테스트 설명 010', 11000, 'DISCONTINUED', 30, NOW(), NOW()),
        (11, '테스트 상품 011', '테스트 설명 011', 16000, 'DISCONTINUED', 31, NOW(), NOW()),
        (12, '테스트 상품 012', '테스트 설명 012', 21000, 'DISCONTINUED', 32, NOW(), NOW()),
